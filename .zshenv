@@ -14,8 +14,10 @@ export DOTS_HOME="$REPOS_HOME/macDots"
 
 export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
 
+# history
 export HISTFILE="$ZDOTDIR/.zhistory"	# History filepath
 export HISTSIZE=10000			# Maximum events for internal history
+export HISTDUP=erase
 export SAVEHIST=10000			# Maximum events in history file
 
 export NVM_DIR="$HOME/.nvm"
