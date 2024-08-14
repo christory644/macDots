@@ -9,9 +9,11 @@ export XDG_CACHE_HOME="$XDG_CONFIG_HOME/cache"
 export EDITOR="nvim"
 export VISUAL="nvim"
 
+# useful directories
 export REPOS_HOME="$HOME/repos"
 export DOTS_HOME="$REPOS_HOME/macDots"
 
+# zsh
 export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
 
 # history
@@ -20,6 +22,9 @@ export HISTSIZE=10000			# Maximum events for internal history
 export HISTDUP=erase
 export SAVEHIST=10000			# Maximum events in history file
 
+# other software
 export NVM_DIR="$HOME/.nvm"
+export VIMCONFIG="$XDG_CONFIG_HOME/nvim"
 
+# path
 export PATH=/opt/homebrew/bin:$PATH
