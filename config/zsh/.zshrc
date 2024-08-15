@@ -163,6 +163,8 @@ source $ZDOTDIR/aliases
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source $ZDOTDIR/plugins/bd/bd.zsh
+source $ZDOTDIR/plugins/colorized-man-pages/colorized-man-pages.zsh
+source $ZDOTDIR/plugins/npms/npms.plugin.zsh
 
 ### shell applications ###
 eval "$(zoxide init zsh)"
