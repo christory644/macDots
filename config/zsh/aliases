@@ -51,6 +51,8 @@ alias tumuxa='tmux attach -t'
 alias tmuxl='tmux list-sessions'
 
 # bat
+alias rcat="$(which cat)"			# save the original cat under rcat
+alias cat="$(which bat)"
 alias batl='bat --paging=never -l log'
 
 # functional
