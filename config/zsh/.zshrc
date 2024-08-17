@@ -2,6 +2,10 @@
 
 ### completions ###
 zmodload zsh/complist
+
+# add zellij completions
+fpath=($DOTS_HOME/config/zellij $fpath)
+
 # use hjkl in menu selection (during completion)
 # doesn't work well with interactive mode
 bindkey -M menuselect 'h' vi-backward-char
@@ -170,3 +174,6 @@ source $ZDOTDIR/plugins/npms/npms.plugin.zsh
 eval "$(zoxide init zsh)"
 source <(fzf --zsh)
 eval "$(starship init zsh)"
+
+### start zellij automagically ###
+eval "$(zellij setup --generate-auto-start zsh)"
