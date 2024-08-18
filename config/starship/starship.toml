@@ -3,12 +3,16 @@ format = """
 $os\
 [](bg:background fg:dark_background)\
 $username\
+$hostname\
+$localip\
 [](bg:second_background fg:background)\
 $directory\
 [](bg:third_background fg:second_background)\
 $git_branch\
 $git_status\
 [](bg:fourth_background fg:third_background)\
+$docker_context(bg:fourth_background)\
+$package(bg:fourth_background)\
 [$fill](bg:fourth_background)\
 $all\
 [](bg:fourth_background fg:third_background)\
@@ -47,6 +51,7 @@ magenta = '#c792ea'
 white = '#ffffff' 
 bright = '#575656' 
 purple = '#7e57c2'
+yellow = '#ecc48d'
 
 [os]
 disabled = false
@@ -81,6 +86,20 @@ style_user = "bg:background fg:purple"
 style_root = "bg:background fg:red"
 format = "[$user ]($style)"
 
+[hostname]
+ssh_only = true
+ssh_symbol = ' '
+style = "bold dimmed bg:background fg:yellow"
+format = '[$ssh_symbol$hostname]($style)'
+disabled = false
+trim_at = ''
+
+[localip]
+ssh_only = true
+style = "bold dimmed bg:background fg:red"
+format = "@[$localipv4]($style)"
+disabled = false
+
 [directory]
 style = "bg:second_background fg:blue"
 format = "[ $path ]($style)$read_only"
@@ -96,11 +115,21 @@ truncate_to_repo = false
 [git_branch]
 symbol = ""
 style = "bg:third_background"
-format = '[[ $symbol $branch ](fg:lime bg:third_background)]($style)'
+format = '[[ $symbol $branch ](fg:yellow bg:third_background)]($style)'
 
 [git_status]
-style = "bg:third_background"
-format = '[[($all_status$ahead_behind )](fg:lime bg:third_background)]($style)'
+conflicted = '[󰦦\($count\)](bg:third_background fg:error_red)'
+ahead = '[${count}](bg:third_background fg:green)'
+behind = '[${count}](bg:third_background fg:green)'
+diverged = '[[󰹹](bg:third_background fg:error_red) [${ahead_count}](bg:third_background fg:green) [${behind_count}](bg:third_background fg:error_red)](bg:third_background)'
+up_to_date = '[✓](bg:third_background fg:yellow)'
+format = """
+$conflicted\
+[$deleted$renamed$modified$untracked](bg:third_background fg:error_red)\
+[$staged](bg:third_background fg:green)\
+[$stashed](bg:third_background fg:error_red)\
+$ahead_behind\
+"""
 
 [fill]
 symbol = ' '
