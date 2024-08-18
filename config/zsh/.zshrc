@@ -177,3 +177,6 @@ eval "$(starship init zsh)"
 
 ### start zellij automagically ###
 eval "$(zellij setup --generate-auto-start zsh)"
+
+### flex on startup ###
+neofetch
