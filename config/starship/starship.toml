@@ -1,0 +1,137 @@
+format = """
+[](dark_background)\
+$os\
+[](bg:background fg:dark_background)\
+$username\
+[](bg:second_background fg:background)\
+$directory\
+[](bg:third_background fg:second_background)\
+$git_branch\
+$git_status\
+[](bg:fourth_background fg:third_background)\
+[$fill](bg:fourth_background)\
+$all\
+[](bg:fourth_background fg:third_background)\
+[](bg:third_background fg:second_background)\
+[](bg:second_background fg:background)\
+$time\
+[](bg:background fg:dark_background)\
+$battery\
+[](dark_background)\
+$line_break\
+$character"""
+
+palette = 'night_owl'
+
+[palettes.night_owl]
+background = '#011627' 
+dark_background = '#010e1a'
+second_background = '#0b2942'
+third_background = '#13344f'
+fourth_background = '#084d81'
+foreground = '#d6deeb' 
+current = '#01111d' 
+selection = '#1d3b53' 
+cursor = '#80a4c2' 
+line = '#4b6479' 
+current_number = '#c5e4fd' 
+cyan = '#7fdbca' 
+gray = '#637777' 
+red = '#ff6363'
+error_red = '#ef5350' 
+green = '#22da6e' 
+lime = '#addb67' 
+blue = '#82aaff' 
+orange = '#f78c6c' 
+magenta = '#c792ea' 
+white = '#ffffff' 
+bright = '#575656' 
+purple = '#7e57c2'
+
+[os]
+disabled = false
+style = 'bg:dark_background fg:foreground'
+format = '[$symbol ]($style)'
+
+[os.symbols]
+Windows = "󰍲"
+Ubuntu = "󰕈"
+SUSE = ""
+Raspbian = "󰐿"
+Mint = "󰣭"
+Macos = "󰀵"
+Manjaro = ""
+Linux = "󰌽"
+Gentoo = "󰣨"
+Fedora = "󰣛"
+Alpine = ""
+Amazon = ""
+Android = ""
+Arch = "󰣇"
+Artix = "󰣇"
+EndeavourOS = ""
+CentOS = ""
+Debian = "󰣚"
+Redhat = "󱄛"
+RedHatEnterprise = "󱄛"
+
+[username]
+show_always = true
+style_user = "bg:background fg:purple"
+style_root = "bg:background fg:red"
+format = "[$user ]($style)"
+
+[directory]
+style = "bg:second_background fg:blue"
+format = "[ $path ]($style)$read_only"
+truncate_to_repo = false
+
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music" = "󰝚 "
+"Pictures" = " "
+"repos" = "󰲋 "
+
+[git_branch]
+symbol = ""
+style = "bg:third_background"
+format = '[[ $symbol $branch ](fg:lime bg:third_background)]($style)'
+
+[git_status]
+style = "bg:third_background"
+format = '[[($all_status$ahead_behind )](fg:lime bg:third_background)]($style)'
+
+[fill]
+symbol = ' '
+style = '(bg: background fg:foreground)'
+
+[time]
+disabled = false
+use_12hr = true
+format = '[  $time]($style)'
+style = 'bg:background fg:purple'
+
+[battery]
+disabled = false
+format = '[ $symbol](bg:dark_background fg:foreground)[$percentage]($style)'
+
+[[battery.display]]
+threshold = 20
+style = 'bg:dark_background fg:red'
+
+[[battery.display]]
+threshold = 10
+style = 'bg:dark_background fg:bold error_red'
+
+[[battery.display]]
+threshold = 100
+style = 'bg:dark_background fg:green'
+
+[character]
+disabled = false
+success_symbol = '[󰧛](bold fg:cyan)'
+vimcmd_symbol = '[󰧙](bold fg:orange)'
+vimcmd_replace_one_symbol = '[󰧙](bold fg:purple)'
+vimcmd_replace_symbol = '[󰧙](bold fg:purple)'
+vimcmd_visual_symbol = '[󰧝](bold fg:cyan)'

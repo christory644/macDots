@@ -25,6 +25,7 @@ export SAVEHIST=10000			# Maximum events in history file
 # other software
 export NVM_DIR="$HOME/.nvm"
 export VIMCONFIG="$XDG_CONFIG_HOME/nvim"
+export STARSHIP_CONFIG="$XDG_CONFIG_HOME/starship/starship.toml"
 
 # path
 export PATH=/opt/homebrew/bin:$PATH
