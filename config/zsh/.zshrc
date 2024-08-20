@@ -175,8 +175,5 @@ eval "$(zoxide init zsh)"
 source <(fzf --zsh)
 eval "$(starship init zsh)"
 
-### start zellij automagically ###
-eval "$(zellij setup --generate-auto-start zsh)"
-
 ### flex on startup ###
 neofetch
