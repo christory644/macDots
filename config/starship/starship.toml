@@ -34,6 +34,7 @@ $line_break\
 $character"""
 
 palette = 'night_owl'
+command_timeout = 1000
 
 [palettes.night_owl]
 background = '#011627' 
