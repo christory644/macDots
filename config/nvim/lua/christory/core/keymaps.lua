@@ -47,7 +47,8 @@ kmap("n", "<leader>tf", "<cmd>tabnew %<CR>", "Open current buffer in a new tab")
 
 -- buffer management
 kmap("n", "<leader>bp", "<cmd>BufferLineCyclePrev<CR>", "Go to previous buffer")
-kmap("n", "<leader>bn", "<cmd>BufferLineCycleNext<CR>", "Go to next buffer")
+kmap("n", "H", "<cmd>BufferLineCyclePrev<CR>", "Go to previous buffer")
+kmap("n", "L", "<cmd>BufferLineCycleNext<CR>", "Go to next buffer")
 kmap("n", "<leader>bx", "<cmd>bdelete<CR>", "Close (delete) current buffer")
 kmap(
   "n",
