@@ -318,7 +318,7 @@ format = '[[ $symbol $region( $profile) ](fg:yellow bg:third_background)]($style
 [gcloud]
 symbol = ""
 style = "bg:third_background"
-format = '[[ $symbol$account $region(@$domain $project) ](fg:yellow bg:third_background)]($style)'
+format = '[[ $symbol$account ](fg:yellow bg:third_background)]($style)'
 
 [openstack]
 style = "bg:third_background"
