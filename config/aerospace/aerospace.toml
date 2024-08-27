@@ -16,7 +16,7 @@ after-startup-command = [
   # the following requires JankyBorders to be installed
   # JankyBorders has a built in detection of already running process,
   # so it won't be run twice on aerospace restarts
-  'exec-and-forget borders active_color=0xff7e57c2 inactive_color=0xff13344f width=7.5'
+  'exec-and-forget borders active_color=0x887e57c2 inactive_color=0x3313344f width=10'
 ]
 
 # Start AeroSpace at login
@@ -58,12 +58,12 @@ on-focus-changed = 'move-mouse window-lazy-center'
 #                 Monitor pattern is the same as for 'workspace-to-monitor-force-assignment'.
 #                 See: https://nikitabobko.github.io/AeroSpace/guide#assign-workspaces-to-monitors
 [gaps]
-inner.horizontal = 20
-inner.vertical =   20
-outer.left =       17
-outer.bottom =     17
-outer.top =        17
-outer.right =      17
+inner.horizontal = 25
+inner.vertical =   25
+outer.left =       20
+outer.bottom =     20
+outer.top =        20
+outer.right =      20
 
 # 'main' binding mode declaration
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
