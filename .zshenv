@@ -30,3 +30,6 @@ export BAT_THEME="night-owl"
 
 # path
 export PATH=/opt/homebrew/bin:$PATH
+
+# include secret env's, things like keys for openai, etc
+source "$DOTS_HOME/.zshenv_secrets"
