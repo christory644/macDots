@@ -83,6 +83,10 @@ outer.right =      10
 # You can uncomment this line to open up terminal with alt + enter shortcut
 # See: https://nikitabobko.github.io/AeroSpace/commands#exec-and-forget
 # alt-enter = 'exec-and-forget open -n /System/Applications/Utilities/Terminal.app'
+alt-enter = 'exec-and-forget open -n /Applications/kitty.app'
+
+# disable annoying and quite useless "hide application" shortcut
+cmd-h = [] # disable "hide application"
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#layout
 cmd-alt-slash = 'layout tiles horizontal vertical'
@@ -201,3 +205,7 @@ run = 'move-node-to-workspace C'
 [[on-window-detected]]
 if.app-id = 'com.electron.firefoo'
 run = 'move-node-to-workspace D'
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.VSCode'
+run = 'move-node-to-workspace W'
