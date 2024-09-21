@@ -169,6 +169,7 @@ source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 source $ZDOTDIR/plugins/bd/bd.zsh
 source $ZDOTDIR/plugins/colorized-man-pages/colorized-man-pages.zsh
 source $ZDOTDIR/plugins/npms/npms.plugin.zsh
+source $ZDOTDIR/plugins/nx-completion/nx-completion.plugin.zsh
 
 ### shell applications ###
 eval "$(zoxide init zsh)"
