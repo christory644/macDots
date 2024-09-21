@@ -28,8 +28,12 @@ export VIMCONFIG="$XDG_CONFIG_HOME/nvim"
 export STARSHIP_CONFIG="$XDG_CONFIG_HOME/starship/starship.toml"
 export BAT_THEME="night-owl"
 
+# go lang
+export GOPATH=$HOME/go
+
 # path
-export PATH=/opt/homebrew/bin:$PATH
+export PATH=$PATH:$GOPATH/bin # add go path to system path
+export PATH=$PATH:/opt/homebrew/bin # add homebrew to system path
 
 # include secret env's, things like keys for openai, etc
 source "$DOTS_HOME/.zshenv_secrets"
