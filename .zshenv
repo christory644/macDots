@@ -31,6 +31,16 @@ export BAT_THEME="night-owl"
 # go lang
 export GOPATH=$HOME/go
 
+# add CPPFlags for java 21
+export CPPFLAGS="-I/opt/homebrew/opt/openjdk@21/include"
+
+# jenv
+export PATH="$HOME/.jenv/bin:$PATH"
+
+# java lang
+export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH" # add java 17 to path
+export PATH="/opt/homebrew/opt/openjdk@21/bin:$PATH" # add java 21 to path
+
 # path
 export PATH=$PATH:$GOPATH/bin # add go path to system path
 export PATH=$PATH:/opt/homebrew/bin # add homebrew to system path

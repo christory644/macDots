@@ -206,6 +206,10 @@ symbol = ""
 style = "bg:second_background"
 format = '[[ $symbol( $version) ](fg:blue bg:second_background)]($style)'
 
+[gradle]
+style = "bg:second_background"
+format = '[[ $symbol( $version) ](fg:blue bg:second_background)]($style)'
+
 [java]
 symbol = " "
 style = "bg:second_background"

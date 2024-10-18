@@ -5,6 +5,7 @@ zmodload zsh/complist
 
 # add zellij completions
 fpath=($DOTS_HOME/config/zellij $fpath)
+#fpath=($DOTS_HOME/config/zsh/completions)
 
 # use hjkl in menu selection (during completion)
 # doesn't work well with interactive mode
@@ -175,6 +176,7 @@ source $ZDOTDIR/plugins/nx-completion/nx-completion.plugin.zsh
 eval "$(zoxide init zsh)"
 source <(fzf --zsh)
 eval "$(starship init zsh)"
+eval "$(jenv init -)"
 
 ### flex on startup ###
 neofetch
