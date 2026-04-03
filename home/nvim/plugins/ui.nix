@@ -1,4 +1,4 @@
-{ ... }:
+{ theme, ... }:
 
 {
   programs.nixvim = {
@@ -8,7 +8,18 @@
         enable = true;
         settings = {
           options = {
-            theme = "night-owl";
+            theme.__raw = ''
+              (function()
+                local t = require("lualine.themes.${theme.apps.lualine}")
+                -- Strip bold from all mode sections to fix fuzzy rendering
+                for _, mode in ipairs({"normal","insert","visual","replace","command","inactive","terminal"}) do
+                  if t[mode] and t[mode].a then
+                    t[mode].a.gui = ""
+                  end
+                end
+                return t
+              end)()
+            '';
             component_separators = { left = ""; right = ""; };
             section_separators = { left = ""; right = ""; };
             globalstatus = true;
@@ -30,7 +41,7 @@
         settings = {
           options = {
             mode = "buffers";
-            separator_style = "slant";
+            separator_style = "thin";
             diagnostics = "nvim_lsp";
             always_show_bufferline = true;
             show_buffer_close_icons = true;
@@ -63,7 +74,8 @@
             { __unkeyed-1 = "<leader>h"; group = "Hunk"; }
             { __unkeyed-1 = "<leader>l"; group = "LazyGit"; }
             { __unkeyed-1 = "<leader>m"; group = "Format"; }
-            { __unkeyed-1 = "<leader>n"; group = "Next"; }
+            { __unkeyed-1 = "<leader>n"; group = "Next/Notifications"; }
+            { __unkeyed-1 = "<leader>T"; group = "Test"; }
             { __unkeyed-1 = "<leader>p"; group = "Prev"; }
             { __unkeyed-1 = "<leader>r"; group = "Rename/Restart"; }
             { __unkeyed-1 = "<leader>s"; group = "Split/Session/Substitute"; }
@@ -71,6 +83,27 @@
             { __unkeyed-1 = "<leader>w"; group = "Workspace"; }
             { __unkeyed-1 = "<leader>x"; group = "Trouble"; }
           ];
+        };
+      };
+
+      # ── LSP progress indicator ─────────────────────────────────────────
+      fidget = {
+        enable = true;
+        settings = {
+          progress = {
+            display = {
+              done_icon = "✓";
+              progress_icon = {
+                pattern = "dots";
+                period = 1;
+              };
+            };
+          };
+          notification = {
+            window = {
+              winblend = 0;  # match transparent setup
+            };
+          };
         };
       };
 

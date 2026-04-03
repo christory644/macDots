@@ -43,6 +43,10 @@
       "bruno"
       "github"
 
+      # AI coding tools (managed by Homebrew for fast updates — these ship multiple times/day)
+      "claude-code"
+      "codex"
+
       # Window management
       "aerospace"
 

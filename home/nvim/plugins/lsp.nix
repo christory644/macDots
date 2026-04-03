@@ -114,6 +114,9 @@
           ];
         };
 
+        # Elm
+        elmls.enable = true;
+
         # Lua
         lua_ls = {
           enable = true;
@@ -138,6 +141,9 @@
 
         # Go
         gopls.enable = true;
+
+        # Java
+        java_language_server.enable = true;
 
         # Nix
         nil_ls.enable = true;

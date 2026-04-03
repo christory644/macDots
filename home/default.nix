@@ -4,6 +4,7 @@
   imports = [
     nixvim.homeModules.nixvim
 
+    ./themes/default.nix
     ./shell/zsh.nix
     ./shell/starship.nix
     ./git.nix
@@ -11,6 +12,7 @@
     ./terminal/ghostty.nix
     ./terminal/kitty.nix
     ./nvim/default.nix
+    ./vscode.nix
   ];
 
   home = {
@@ -50,7 +52,7 @@
   # Aerospace config (window manager)
   xdg.configFile."aerospace/aerospace.toml".source = ./aerospace.toml;
 
-  # Bat custom theme (night-owl)
+  # Bat custom theme (only needed for themes not built into bat)
   xdg.configFile."bat/themes/night-owl.tmTheme".source = ./bat/themes/night-owl.tmTheme;
   home.activation.buildBatCache = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
     run ${pkgs.bat}/bin/bat cache --build 2>/dev/null || true

@@ -46,6 +46,7 @@
       "java"
       "c_sharp"
       "elixir"
+      "elm"
       "python"
       "dockerfile"
       "graphql"

@@ -1,4 +1,4 @@
-{ ... }:
+{ theme, ... }:
 
 {
   programs.starship = {
@@ -42,35 +42,10 @@
         "$character"
       ];
 
-      palette = "night_owl";
+      palette = theme.slug;
       command_timeout = 1000;
 
-      palettes.night_owl = {
-        background = "#011627";
-        dark_background = "#010e1a";
-        second_background = "#0b2942";
-        third_background = "#13344f";
-        fourth_background = "#084d81";
-        foreground = "#d6deeb";
-        current = "#01111d";
-        selection = "#1d3b53";
-        cursor = "#80a4c2";
-        line = "#4b6479";
-        current_number = "#c5e4fd";
-        cyan = "#7fdbca";
-        gray = "#637777";
-        red = "#ff6363";
-        error_red = "#ef5350";
-        green = "#22da6e";
-        lime = "#addb67";
-        blue = "#82aaff";
-        orange = "#f78c6c";
-        magenta = "#c792ea";
-        white = "#ffffff";
-        bright = "#575656";
-        purple = "#7e57c2";
-        yellow = "#ecc48d";
-      };
+      palettes.${theme.slug} = theme.starship;
 
       os = {
         disabled = false;

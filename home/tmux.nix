@@ -1,5 +1,6 @@
-{ pkgs, ... }:
+{ pkgs, theme, ... }:
 
+let p = theme.palette; in
 {
   programs.tmux = {
     enable = true;
@@ -22,6 +23,14 @@
         extraConfig = ''
           set -g @continuum-restore 'on'
           set -g @continuum-save-interval '10'
+        '';
+      }
+      {
+        plugin = tmux-thumbs;
+        extraConfig = ''
+          set -g @thumbs-key F
+          set -g @thumbs-command 'echo -n {} | pbcopy'
+          set -g @thumbs-upcase-command 'echo -n {} | pbcopy'
         '';
       }
     ];
@@ -60,12 +69,12 @@
       bind e new-window -n "tmux.conf" "nvim ~/.config/tmux/tmux.conf && tmux source ~/.config/tmux/tmux.conf && tmux display 'tmux.conf sourced'"
       bind r source-file ~/.config/tmux/tmux.conf \; display 'tmux.conf sourced'
 
-      # -- Night Owl Color Scheme --
-      BG1="#011627"
-      BG2="#82aaff"
-      BG3="#112630"
-      FG1="#d6deeb"
-      FG2="#637777"
+      # -- ${theme.name} Color Scheme --
+      BG1="${p.bg}"
+      BG2="${p.accent}"
+      BG3="${p.bg_light}"
+      FG1="${p.fg}"
+      FG2="${p.fg_dim}"
 
       set-option -g status "on"
       set -g status-bg $BG3

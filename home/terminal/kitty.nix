@@ -1,5 +1,6 @@
-{ ... }:
+{ theme, ... }:
 
+let t = theme.terminal; in
 {
   programs.kitty = {
     enable = true;
@@ -23,32 +24,29 @@
       # Scrollback
       scrollback_lines = 10000;
 
-      # Night Owl colors
-      foreground = "#d6deeb";
-      background = "#011627";
-      selection_foreground = "#d6deeb";
-      selection_background = "#1d3b53";
-      cursor = "#80a4c2";
+      # Theme colors (from ${theme.name})
+      foreground = t.foreground;
+      background = t.background;
+      selection_foreground = t.selection_fg;
+      selection_background = t.selection_bg;
+      cursor = t.cursor;
 
-      # Normal colors
-      color0 = "#011627";
-      color1 = "#ef5350";
-      color2 = "#22da6e";
-      color3 = "#ecc48d";
-      color4 = "#82aaff";
-      color5 = "#c792ea";
-      color6 = "#7fdbca";
-      color7 = "#d6deeb";
-
-      # Bright colors
-      color8 = "#637777";
-      color9 = "#ff6363";
-      color10 = "#addb67";
-      color11 = "#f78c6c";
-      color12 = "#82aaff";
-      color13 = "#c792ea";
-      color14 = "#7fdbca";
-      color15 = "#ffffff";
+      color0  = t.color0;
+      color1  = t.color1;
+      color2  = t.color2;
+      color3  = t.color3;
+      color4  = t.color4;
+      color5  = t.color5;
+      color6  = t.color6;
+      color7  = t.color7;
+      color8  = t.color8;
+      color9  = t.color9;
+      color10 = t.color10;
+      color11 = t.color11;
+      color12 = t.color12;
+      color13 = t.color13;
+      color14 = t.color14;
+      color15 = t.color15;
     };
 
     keybindings = {

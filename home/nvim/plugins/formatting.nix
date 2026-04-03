@@ -23,6 +23,10 @@
             rust = [ "rustfmt" ];
             go = [ "gofumpt" ];
             nix = [ "nixfmt" ];
+            elm = [ "elm_format" ];
+            elixir = [ "mix" ];
+            # Java: uses Spotless (palantir style) via `./gradlew spotlessApply`
+            # conform falls back to LSP formatting for Java
           };
 
           format_on_save = {
@@ -42,6 +46,7 @@
           typescriptreact = [ "eslint_d" ];
           svelte = [ "eslint_d" ];
           python = [ "pylint" ];
+          elixir = [ "credo" ];
         };
 
         autoCmd = {

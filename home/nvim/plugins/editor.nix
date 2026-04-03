@@ -107,9 +107,10 @@
       };
     };
 
-    # ── substitute.nvim (extraPlugin — no native NixVim module) ────────
+    # ── substitute.nvim & extras (extraPlugin — no native NixVim module)
     extraPlugins = with pkgs.vimPlugins; [
       substitute-nvim
+      grug-far-nvim
       (pkgs.vimUtils.buildVimPlugin {
         name = "vim-maximizer";
         src = pkgs.fetchFromGitHub {
@@ -124,6 +125,11 @@
     extraConfigLua = ''
       -- ── substitute.nvim ────────────────────────────────────────────
       require("substitute").setup()
+
+      -- ── grug-far (project-wide find and replace) ──────────────────
+      require("grug-far").setup({
+        headerMaxWidth = 80,
+      })
 
       -- ── vim-maximizer has no Lua setup needed ──────────────────────
     '';
@@ -189,6 +195,26 @@
         key = "<leader>sm";
         action = "<cmd>MaximizerToggle<CR>";
         options.desc = "Toggle maximize split";
+      }
+
+      # Grug-far (find and replace)
+      {
+        mode = "n";
+        key = "<leader>fr";
+        action.__raw = ''function() require("grug-far").open() end'';
+        options.desc = "Find and replace (grug-far)";
+      }
+      {
+        mode = "n";
+        key = "<leader>fw";
+        action.__raw = ''function() require("grug-far").open({ prefills = { search = vim.fn.expand("<cword>") } }) end'';
+        options.desc = "Find and replace current word";
+      }
+      {
+        mode = "v";
+        key = "<leader>fr";
+        action.__raw = ''function() require("grug-far").with_visual_selection() end'';
+        options.desc = "Find and replace selection";
       }
 
       # NvimTree

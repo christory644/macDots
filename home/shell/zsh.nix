@@ -1,4 +1,4 @@
-{ pkgs, lib, config, ... }:
+{ pkgs, lib, config, theme, ... }:
 
 {
   programs.zsh = {
@@ -36,7 +36,7 @@
       REPOS_HOME = "$HOME/repos";
       DOTS_HOME = "$HOME/repos/macDots";
       VIMCONFIG = "$HOME/.config/nvim";
-      BAT_THEME = "night-owl";
+      BAT_THEME = theme.apps.bat;
       GOPATH = "$HOME/go";
       KEYTIMEOUT = "1";
     };
@@ -107,6 +107,9 @@
 
       # nix-darwin rebuild (nh gives colorized diffs + better progress)
       rebuild = "nh darwin switch ~/repos/macDots -H macbook";
+
+      # update all flake inputs (nixpkgs, home-manager, nixvim, etc.) then rebuild
+      update = "nix flake update --flake ~/repos/macDots && nh darwin switch ~/repos/macDots -H macbook";
 
       # system info (run manually, not on startup)
       neofetch = "fastfetch";
@@ -232,6 +235,16 @@
       # PATH additions
       export PATH="$HOME/go/bin:$HOME/.jenv/bin:$PATH"
       export PATH="$PATH:/Applications/Obsidian.app/Contents/MacOS"
+
+      # Yazi: cd to directory when exiting with q (wrapper function)
+      function y() {
+        local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+        yazi "$@" --cwd-file="$tmp"
+        if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+          builtin cd -- "$cwd"
+        fi
+        rm -f -- "$tmp"
+      }
 
       # Ensure Nix paths take priority over Homebrew (brew shellenv runs in /etc/zshrc)
       export PATH="$HOME/.nix-profile/bin:/etc/profiles/per-user/$USER/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:$PATH"

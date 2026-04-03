@@ -1,5 +1,10 @@
-{ ... }:
+{ theme, ... }:
 
+let
+  t = theme.terminal;
+  # Ghostty uses colors without the # prefix
+  strip = s: builtins.substring 1 (builtins.stringLength s - 1) s;
+in
 {
   # Ghostty config — also read by cmux (which is built on libghostty)
   xdg.configFile."ghostty/config".text = ''
@@ -8,35 +13,35 @@
     font-size = 13
     font-thicken = true
 
-    # Night Owl color scheme
-    background = 011627
-    foreground = d6deeb
-    cursor-color = 80a4c2
-    selection-background = 1d3b53
-    selection-foreground = d6deeb
+    # ${theme.name} color scheme
+    background = ${strip t.background}
+    foreground = ${strip t.foreground}
+    cursor-color = ${strip t.cursor}
+    selection-background = ${strip t.selection_bg}
+    selection-foreground = ${strip t.selection_fg}
 
     # Normal colors (0-7)
-    palette = 0=#011627
-    palette = 1=#ef5350
-    palette = 2=#22da6e
-    palette = 3=#ecc48d
-    palette = 4=#82aaff
-    palette = 5=#c792ea
-    palette = 6=#7fdbca
-    palette = 7=#d6deeb
+    palette = 0=${t.color0}
+    palette = 1=${t.color1}
+    palette = 2=${t.color2}
+    palette = 3=${t.color3}
+    palette = 4=${t.color4}
+    palette = 5=${t.color5}
+    palette = 6=${t.color6}
+    palette = 7=${t.color7}
 
     # Bright colors (8-15)
-    palette = 8=#637777
-    palette = 9=#ff6363
-    palette = 10=#addb67
-    palette = 11=#f78c6c
-    palette = 12=#82aaff
-    palette = 13=#c792ea
-    palette = 14=#7fdbca
-    palette = 15=#ffffff
+    palette = 8=${t.color8}
+    palette = 9=${t.color9}
+    palette = 10=${t.color10}
+    palette = 11=${t.color11}
+    palette = 12=${t.color12}
+    palette = 13=${t.color13}
+    palette = 14=${t.color14}
+    palette = 15=${t.color15}
 
     # Window
-    background-opacity = 0.85
+    background-opacity = 0.60
     background-blur = true
     window-decoration = false
     window-padding-x = 4

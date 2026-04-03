@@ -20,9 +20,14 @@
     };
 
     nix-homebrew.url = "github:zhaofengli/nix-homebrew";
+
+    nix-vscode-extensions = {
+      url = "github:nix-community/nix-vscode-extensions";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, nix-darwin, home-manager, nixvim, nix-homebrew, ... }:
+  outputs = { self, nixpkgs, nix-darwin, home-manager, nixvim, nix-homebrew, nix-vscode-extensions, ... }:
     let
       system = "aarch64-darwin";
       username = "christopherstory";
@@ -31,7 +36,7 @@
     {
       darwinConfigurations.${hostname} = nix-darwin.lib.darwinSystem {
         inherit system;
-        specialArgs = { inherit username nixvim; };
+        specialArgs = { inherit username nixvim nix-vscode-extensions; };
         modules = [
           ./hosts/macbook/default.nix
           ./hosts/macbook/homebrew.nix
@@ -52,7 +57,7 @@
               useGlobalPkgs = true;
               useUserPackages = true;
               backupFileExtension = "hm-bak";
-              extraSpecialArgs = { inherit username nixvim; };
+              extraSpecialArgs = { inherit username nixvim nix-vscode-extensions; };
               users.${username} = import ./home/default.nix;
             };
           }

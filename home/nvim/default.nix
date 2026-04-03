@@ -18,6 +18,8 @@
     ./plugins/harpoon.nix
     ./plugins/undotree.nix
     ./plugins/diffview.nix
+    ./plugins/noice.nix
+    ./plugins/neotest.nix
   ];
 
   programs.nixvim = {

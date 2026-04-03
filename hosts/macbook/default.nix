@@ -55,11 +55,22 @@
     dolt           # version-controlled SQL DB (Gastown dependency)
     # Node managed by NVM via Homebrew — not here
 
+    # Language formatters (used by conform.nvim)
+    elmPackages.elm-format   # Elm formatter
+    # Java: formatted by Spotless (palantir style) via Gradle — no standalone formatter needed
+
     # AI coding agents (for Gastown multi-agent orchestration)
     # aider-chat   # DISABLED — nixpkgs 0.86.1 has broken tests (gpt-4-32k removed from litellm)
                     # Install via: pipx install aider-chat (when needed on bigger machine)
     opencode       # AI coding agent (supports any OpenAI-compatible endpoint)
     ollama         # local LLM server (llama, codellama, mistral, etc.)
+
+    # File management & search
+    yazi           # terminal file manager (Rust, blazing fast)
+    ast-grep       # structural code search/replace by AST patterns
+
+    # Git workflow
+    git-branchless # stacked PRs / dependent branch management
 
     # Build tools
     gnumake
@@ -98,7 +109,7 @@
       };
       CustomUserPreferences = {
         "com.apple.screencapture" = {
-          location = "~/Desktop/Screenshots";
+          location = "/Users/${username}/Screenshots";
           type = "png";
         };
       };
