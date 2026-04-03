@@ -109,8 +109,10 @@
       resource_zsh = "source $HOME/.zshrc";
 
       # claude code — separate personal/work configs
+      # Work sessions impersonate a limited GCP service account so agents
+      # can't accidentally use your admin creds (set GCP_AGENT_SA in .zshenv_secrets)
       claude-personal = "CLAUDE_CONFIG_DIR=~/.claude-personal command claude";
-      claude-work = "CLAUDE_CONFIG_DIR=~/.claude-work command claude";
+      claude-work = "CLAUDE_CONFIG_DIR=~/.claude-work CLOUDSDK_AUTH_IMPERSONATE_SERVICE_ACCOUNT=$GCP_AGENT_SA command claude";
       claude = "claude-work";
 
       # gastown and gas city — functions are in initContent (need tmux logic)
@@ -279,9 +281,9 @@
           fi
         }
 
-        function gt-work()     { _ensure_tmux gt-work GT_TOWN_ROOT=~/.gt-work CLAUDE_CONFIG_DIR=~/.claude-work command gt "$@"; }
+        function gt-work()     { _ensure_tmux gt-work GT_TOWN_ROOT=~/.gt-work CLAUDE_CONFIG_DIR=~/.claude-work CLOUDSDK_AUTH_IMPERSONATE_SERVICE_ACCOUNT=$GCP_AGENT_SA command gt "$@"; }
         function gt-personal() { _ensure_tmux gt-personal GT_TOWN_ROOT=~/.gt-personal CLAUDE_CONFIG_DIR=~/.claude-personal command gt "$@"; }
-        function gc-work()     { _ensure_tmux gc-work CLAUDE_CONFIG_DIR=~/.claude-work command gc --city ~/.gc-work "$@"; }
+        function gc-work()     { _ensure_tmux gc-work CLAUDE_CONFIG_DIR=~/.claude-work CLOUDSDK_AUTH_IMPERSONATE_SERVICE_ACCOUNT=$GCP_AGENT_SA command gc --city ~/.gc-work "$@"; }
         function gc-personal() { _ensure_tmux gc-personal CLAUDE_CONFIG_DIR=~/.claude-personal command gc --city ~/.gc-personal "$@"; }
 
         # Ensure Nix paths take priority over Homebrew (brew shellenv runs in /etc/zshrc)
