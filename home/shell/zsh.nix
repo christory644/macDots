@@ -18,6 +18,12 @@
       append = true;
     };
 
+    envExtra = ''
+      # Clear stale ZDOTDIR from old macOS session cache
+      # (old config set ZDOTDIR=~/.config/zsh, macOS persists env across logins)
+      unset ZDOTDIR
+    '';
+
     sessionVariables = {
       EDITOR = "nvim";
       VISUAL = "nvim";
