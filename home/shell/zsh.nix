@@ -36,12 +36,11 @@
     };
 
     shellAliases = {
-      # ls → eza
-      ls = "eza";
-      l = "ls -lha";
-      la = "ls -a";
-      lla = "ls -la";
-      lt = "ls --tree";
+      # ls shortcuts (eza is on PATH, no alias needed)
+      l = "eza -lha";
+      la = "eza -a";
+      lla = "eza -la";
+      lt = "eza --tree";
       t = "tree";
       t1 = "tree -L 1";
       t2 = "tree -L 2";
@@ -84,8 +83,7 @@
       tmuxattach = "tmux attach -t";
       tmuxl = "tmux list-sessions";
 
-      # bat
-      cat = "bat";
+      # bat (no cat alias — breaks scripts)
       batl = "bat --paging=never -l log";
 
       # shell
