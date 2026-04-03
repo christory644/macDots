@@ -50,5 +50,11 @@
   # Aerospace config (window manager)
   xdg.configFile."aerospace/aerospace.toml".source = ./aerospace.toml;
 
+  # Bat custom theme (night-owl)
+  xdg.configFile."bat/themes/night-owl.tmTheme".source = ./bat/themes/night-owl.tmTheme;
+  home.activation.buildBatCache = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    run ${pkgs.bat}/bin/bat cache --build 2>/dev/null || true
+  '';
+
   programs.home-manager.enable = true;
 }
