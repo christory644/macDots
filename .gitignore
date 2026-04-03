@@ -5,3 +5,4 @@ config/zsh/.zcompdump
 .DS_STORE
 .java-version
 .claude/
+result

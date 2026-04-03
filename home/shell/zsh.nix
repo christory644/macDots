@@ -87,7 +87,7 @@
       gpo = "git push origin";
       gplo = "git pull origin";
       gb = "git branch";
-      gc = "git commit";
+      gcm = "git commit"; # renamed from gc to avoid shadowing Gas City CLI
       gd = "git diff";
       gco = "git checkout";
       gl = "git log --oneline";
@@ -114,9 +114,20 @@
       claude = "claude-work";
 
       # gastown — separate towns per Claude identity
-      gt-personal = "GT_TOWN_ROOT=~/gt-personal CLAUDE_CONFIG_DIR=~/.claude-personal command gt";
-      gt-work = "GT_TOWN_ROOT=~/gt-work CLAUDE_CONFIG_DIR=~/.claude-work command gt";
+      gt-personal = "GT_TOWN_ROOT=~/.gt-personal CLAUDE_CONFIG_DIR=~/.claude-personal command gt";
+      gt-work = "GT_TOWN_ROOT=~/.gt-work CLAUDE_CONFIG_DIR=~/.claude-work command gt";
       gt = "gt-work"; # default to work
+
+      # gas city — separate cities per Claude identity
+      gc-personal = "CLAUDE_CONFIG_DIR=~/.claude-personal command gc --city ~/.gc-personal";
+      gc-work = "CLAUDE_CONFIG_DIR=~/.claude-work command gc --city ~/.gc-work";
+      gc = "gc-work";
+
+      # local services (docker)
+      chat = "open http://chat.local:4080";
+      chat-up = "docker compose -f ~/repos/macDots/docker/docker-compose.yml up -d";
+      chat-down = "docker compose -f ~/repos/macDots/docker/docker-compose.yml down";
+      chat-logs = "docker compose -f ~/repos/macDots/docker/docker-compose.yml logs -f";
 
       # nix-darwin rebuild (nh gives colorized diffs + better progress)
       rebuild = "nh darwin switch ~/repos/macDots -H macbook";

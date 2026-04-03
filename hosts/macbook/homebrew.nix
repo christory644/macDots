@@ -16,12 +16,14 @@
     taps = [
       "felixkratz/formulae"
       "nikitabobko/tap"
+      "gastownhall/gascity"
     ];
 
     # Homebrew formulas — only for things not in nixpkgs or that work better via brew
     brews = [
       "borders"           # JankyBorders — not in nixpkgs, needs tap
       "gastown"           # multi-agent orchestration (Steve Yegge) — not in nixpkgs
+      "gascity"           # Gas City — open-source orchestration SDK (successor to Gastown)
       "pi-coding-agent"   # minimal AI coding agent (supports Ollama, Claude, OpenAI, etc.)
     ];
 
