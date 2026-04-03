@@ -56,7 +56,8 @@
     # Node managed by NVM via Homebrew — not here
 
     # AI coding agents (for Gastown multi-agent orchestration)
-    aider-chat     # AI pair programming (supports Ollama, OpenAI, Claude, etc.)
+    # aider-chat   # DISABLED — nixpkgs 0.86.1 has broken tests (gpt-4-32k removed from litellm)
+                    # Install via: pipx install aider-chat (when needed on bigger machine)
     opencode       # AI coding agent (supports any OpenAI-compatible endpoint)
     ollama         # local LLM server (llama, codellama, mistral, etc.)
 
