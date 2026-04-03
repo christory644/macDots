@@ -38,7 +38,7 @@
       # Development
       "cursor"
       "visual-studio-code"
-      "docker"
+      "docker-desktop"
       "bruno"
       "github"
 
