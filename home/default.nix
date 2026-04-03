@@ -13,6 +13,7 @@
     ./terminal/kitty.nix
     ./nvim/default.nix
     ./vscode.nix
+    ./ollama.nix
   ];
 
   home = {

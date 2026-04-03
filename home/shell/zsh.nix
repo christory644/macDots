@@ -1,4 +1,10 @@
-{ pkgs, lib, config, theme, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  theme,
+  ...
+}:
 
 {
   programs.zsh = {
@@ -39,6 +45,13 @@
       BAT_THEME = theme.apps.bat;
       GOPATH = "$HOME/go";
       KEYTIMEOUT = "1";
+
+      # Ollama — tuned for M3 18GB (bump NUM_PARALLEL and MAX_LOADED_MODELS on bigger machine)
+      OLLAMA_FLASH_ATTENTION = "1"; # faster inference on Apple Silicon
+      OLLAMA_KV_CACHE_TYPE = "q8_0"; # halves KV cache memory
+      OLLAMA_KEEP_ALIVE = "10m"; # shorter keepalive to free RAM faster
+      OLLAMA_NUM_PARALLEL = "1"; # single request at a time (RAM limited)
+      OLLAMA_MAX_LOADED_MODELS = "1"; # only one model loaded at a time
     };
 
     shellAliases = {
@@ -124,131 +137,131 @@
         [ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
       '')
       ''
-      # -- Completion configuration --
-      zmodload zsh/complist
+        # -- Completion configuration --
+        zmodload zsh/complist
 
-      # hjkl in menu selection
-      bindkey -M menuselect 'h' vi-backward-char
-      bindkey -M menuselect 'j' vi-down-line-or-history
-      bindkey -M menuselect 'k' vi-up-line-or-history
-      bindkey -M menuselect 'l' vi-forward-char
-      bindkey -M menuselect '^xg' clear-screen
-      bindkey -M menuselect '^xi' vi-insert
-      bindkey -M menuselect '^xh' accept-and-hold
-      bindkey -M menuselect '^xn' accept-and-infer-next-history
-      bindkey -M menuselect '^xu' undo
+        # hjkl in menu selection
+        bindkey -M menuselect 'h' vi-backward-char
+        bindkey -M menuselect 'j' vi-down-line-or-history
+        bindkey -M menuselect 'k' vi-up-line-or-history
+        bindkey -M menuselect 'l' vi-forward-char
+        bindkey -M menuselect '^xg' clear-screen
+        bindkey -M menuselect '^xi' vi-insert
+        bindkey -M menuselect '^xh' accept-and-hold
+        bindkey -M menuselect '^xn' accept-and-infer-next-history
+        bindkey -M menuselect '^xu' undo
 
-      _comp_options+=(globdots)
+        _comp_options+=(globdots)
 
-      setopt MENU_COMPLETE AUTO_LIST COMPLETE_IN_WORD
+        setopt MENU_COMPLETE AUTO_LIST COMPLETE_IN_WORD
 
-      # zstyle completions
-      zstyle ':completion:*' use-cache on
-      zstyle ':completion:*' cache-path "$HOME/.config/cache/zsh/.zcompcache"
-      zstyle ':completion:*' complete true
-      zle -C alias-expansion complete-word _generic
-      bindkey '^a' alias-expansion
-      zstyle ':completion:alias-expansion:*' completer _expand_alias
-      zstyle ':completion:*' menu select
-      zstyle ':completion:*' complete-options true
-      zstyle ':completion:*' file-sort modification
-      zstyle ':completion:*:*:*:*:corrections' format '%F{yellow}!- %d (errors: %e) -!%f'
-      zstyle ':completion:*:*:*:*:descriptions' format '%F{blue}-- %D %d --%f'
-      zstyle ':completion:*:*:*:*:messages' format ' %F{purple} -- %d --%f'
-      zstyle ':completion:*:*:*:*:warnings' format ' %F{red}-- no matches found --%f'
-      zstyle ':completion:*:*:*:*:default' list-colors ''${(s.:.)LS_COLORS}
-      zstyle ':completion:*:*:cd:*' tag-order local-directories directory-stack path-directories
-      zstyle ':completion:*' group-name '''
-      zstyle ':completion:*:*:-command-:*:*' group-order aliases builtins functions commands
-      zstyle ':completion:*' matcher-list ''' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-      zstyle ':completion:*' keep-prefix true
+        # zstyle completions
+        zstyle ':completion:*' use-cache on
+        zstyle ':completion:*' cache-path "$HOME/.config/cache/zsh/.zcompcache"
+        zstyle ':completion:*' complete true
+        zle -C alias-expansion complete-word _generic
+        bindkey '^a' alias-expansion
+        zstyle ':completion:alias-expansion:*' completer _expand_alias
+        zstyle ':completion:*' menu select
+        zstyle ':completion:*' complete-options true
+        zstyle ':completion:*' file-sort modification
+        zstyle ':completion:*:*:*:*:corrections' format '%F{yellow}!- %d (errors: %e) -!%f'
+        zstyle ':completion:*:*:*:*:descriptions' format '%F{blue}-- %D %d --%f'
+        zstyle ':completion:*:*:*:*:messages' format ' %F{purple} -- %d --%f'
+        zstyle ':completion:*:*:*:*:warnings' format ' %F{red}-- no matches found --%f'
+        zstyle ':completion:*:*:*:*:default' list-colors ''${(s.:.)LS_COLORS}
+        zstyle ':completion:*:*:cd:*' tag-order local-directories directory-stack path-directories
+        zstyle ':completion:*' group-name '''
+        zstyle ':completion:*:*:-command-:*:*' group-order aliases builtins functions commands
+        zstyle ':completion:*' matcher-list ''' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+        zstyle ':completion:*' keep-prefix true
 
-      # -- Directory stack --
-      setopt AUTO_PUSHD PUSHD_IGNORE_DUPS PUSHD_SILENT
+        # -- Directory stack --
+        setopt AUTO_PUSHD PUSHD_IGNORE_DUPS PUSHD_SILENT
 
-      # Directory stack navigation aliases
-      alias d='dirs -v'
-      for index ({1..9}) alias "$index"="cd +''${index}"; unset index
+        # Directory stack navigation aliases
+        alias d='dirs -v'
+        for index ({1..9}) alias "$index"="cd +''${index}"; unset index
 
-      # -- Vi mode --
-      bindkey -v
+        # -- Vi mode --
+        bindkey -v
 
-      # Cursor shape: beam for insert, block for normal
-      cursor_mode() {
-        cursor_block='\e[2 q'
-        cursor_beam='\e[6 q'
-        function zle-keymap-select {
-          if [[ ''${KEYMAP} == vicmd ]] || [[ $1 = 'block' ]]; then
-            echo -ne $cursor_block
-          elif [[ ''${KEYMAP} == main ]] || [[ ''${KEYMAP} == viins ]] || [[ ''${KEYMAP} = ''' ]] || [[ $1 = 'beam' ]]; then
-            echo -ne $cursor_beam
-          fi
+        # Cursor shape: beam for insert, block for normal
+        cursor_mode() {
+          cursor_block='\e[2 q'
+          cursor_beam='\e[6 q'
+          function zle-keymap-select {
+            if [[ ''${KEYMAP} == vicmd ]] || [[ $1 = 'block' ]]; then
+              echo -ne $cursor_block
+            elif [[ ''${KEYMAP} == main ]] || [[ ''${KEYMAP} == viins ]] || [[ ''${KEYMAP} = ''' ]] || [[ $1 = 'beam' ]]; then
+              echo -ne $cursor_beam
+            fi
+          }
+          zle-line-init() { echo -ne $cursor_beam }
+          zle -N zle-keymap-select
+          zle -N zle-line-init
         }
-        zle-line-init() { echo -ne $cursor_beam }
-        zle -N zle-keymap-select
-        zle -N zle-line-init
-      }
-      cursor_mode
+        cursor_mode
 
-      # Edit command line in $VISUAL
-      autoload -Uz edit-command-line
-      zle -N edit-command-line
-      bindkey -M vicmd v edit-command-line
+        # Edit command line in $VISUAL
+        autoload -Uz edit-command-line
+        zle -N edit-command-line
+        bindkey -M vicmd v edit-command-line
 
-      # Text objects (da", ci(, etc.)
-      autoload -Uz select-bracketed select-quoted
-      zle -N select-quoted
-      zle -N select-bracketed
-      for km in viopp visual; do
-        bindkey -M $km -- '-' vi-up-line-or-history
-        for c in {a,i}''${(s..)^:-\'\"\`\|,./:;=+@}; do
-          bindkey -M $km $c select-quoted
+        # Text objects (da", ci(, etc.)
+        autoload -Uz select-bracketed select-quoted
+        zle -N select-quoted
+        zle -N select-bracketed
+        for km in viopp visual; do
+          bindkey -M $km -- '-' vi-up-line-or-history
+          for c in {a,i}''${(s..)^:-\'\"\`\|,./:;=+@}; do
+            bindkey -M $km $c select-quoted
+          done
+          for c in {a,i}''${(s..)^:-'()[]{}<>bB'}; do
+            bindkey -M $km $c select-bracketed
+          done
         done
-        for c in {a,i}''${(s..)^:-'()[]{}<>bB'}; do
-          bindkey -M $km $c select-bracketed
-        done
-      done
 
-      # Surround functionality (like vim-surround)
-      autoload -Uz surround
-      zle -N delete-surround surround
-      zle -N add-surround surround
-      zle -N change-surround surround
-      bindkey -M vicmd cs change-surround
-      bindkey -M vicmd ds delete-surround
-      bindkey -M vicmd yw add-surround
-      bindkey -M visual S add-surround
+        # Surround functionality (like vim-surround)
+        autoload -Uz surround
+        zle -N delete-surround surround
+        zle -N add-surround surround
+        zle -N change-surround surround
+        bindkey -M vicmd cs change-surround
+        bindkey -M vicmd ds delete-surround
+        bindkey -M vicmd yw add-surround
+        bindkey -M visual S add-surround
 
-      # -- Tool integrations --
-      # Google Cloud SDK
-      [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ] && source "$HOME/google-cloud-sdk/path.zsh.inc"
-      [ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ] && source "$HOME/google-cloud-sdk/completion.zsh.inc"
+        # -- Tool integrations --
+        # Google Cloud SDK
+        [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ] && source "$HOME/google-cloud-sdk/path.zsh.inc"
+        [ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ] && source "$HOME/google-cloud-sdk/completion.zsh.inc"
 
-      # NVM (if still needed alongside Nix nodejs)
-      [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && source "/opt/homebrew/opt/nvm/nvm.sh"
+        # NVM (if still needed alongside Nix nodejs)
+        [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && source "/opt/homebrew/opt/nvm/nvm.sh"
 
-      # JEnv
-      if command -v jenv &> /dev/null; then
-        eval "$(jenv init -)"
-      fi
-
-      # PATH additions
-      export PATH="$HOME/go/bin:$HOME/.jenv/bin:$PATH"
-      export PATH="$PATH:/Applications/Obsidian.app/Contents/MacOS"
-
-      # Yazi: cd to directory when exiting with q (wrapper function)
-      function y() {
-        local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
-        yazi "$@" --cwd-file="$tmp"
-        if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
-          builtin cd -- "$cwd"
+        # JEnv
+        if command -v jenv &> /dev/null; then
+          eval "$(jenv init -)"
         fi
-        rm -f -- "$tmp"
-      }
 
-      # Ensure Nix paths take priority over Homebrew (brew shellenv runs in /etc/zshrc)
-      export PATH="$HOME/.nix-profile/bin:/etc/profiles/per-user/$USER/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:$PATH"
-    ''
+        # PATH additions
+        export PATH="$HOME/go/bin:$HOME/.jenv/bin:$PATH"
+        export PATH="$PATH:/Applications/Obsidian.app/Contents/MacOS"
+
+        # Yazi: cd to directory when exiting with q (wrapper function)
+        function y() {
+          local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+          yazi "$@" --cwd-file="$tmp"
+          if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+            builtin cd -- "$cwd"
+          fi
+          rm -f -- "$tmp"
+        }
+
+        # Ensure Nix paths take priority over Homebrew (brew shellenv runs in /etc/zshrc)
+        export PATH="$HOME/.nix-profile/bin:/etc/profiles/per-user/$USER/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:$PATH"
+      ''
     ];
   };
 

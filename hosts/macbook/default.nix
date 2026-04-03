@@ -52,6 +52,7 @@
     # Languages & runtimes
     go
     python3
+    bun            # fast JS runtime (used for oh-my-pi)
     dolt           # version-controlled SQL DB (Gastown dependency)
     # Node managed by NVM via Homebrew — not here
 
@@ -116,6 +117,15 @@
     };
     # Required for nix-darwin
     stateVersion = 6;
+  };
+
+  # Local service hostnames (managed by nix, written to /etc/hosts)
+  networking.hostName = "macbook";
+  networking.hosts = {
+    "127.0.0.1" = [
+      "chat.local"       # Open WebUI        → localhost:4080
+      "ollama.local"      # Ollama API        → localhost:11434
+    ];
   };
 
   # Shell

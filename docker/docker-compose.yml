@@ -1,0 +1,22 @@
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: unless-stopped
+    ports:
+      - "4080:8080"
+    volumes:
+      - open-webui:/app/backend/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      # Connect to host Ollama instance
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      # Disable telemetry
+      - SCARF_NO_ANALYTICS=true
+      - DO_NOT_TRACK=true
+      # Disable sign-up after first user (single-user setup)
+      - ENABLE_SIGNUP=false
+
+volumes:
+  open-webui:
