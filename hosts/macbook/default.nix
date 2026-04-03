@@ -119,14 +119,17 @@
     stateVersion = 6;
   };
 
-  # Local service hostnames (managed by nix, written to /etc/hosts)
+  # Local service hostnames (appended to /etc/hosts)
   networking.hostName = "macbook";
-  networking.hosts = {
-    "127.0.0.1" = [
-      "chat.local"       # Open WebUI        → localhost:4080
-      "ollama.local"      # Ollama API        → localhost:11434
-    ];
-  };
+  environment.etc."hosts".text = ''
+    127.0.0.1       localhost
+    255.255.255.255 broadcasthost
+    ::1             localhost
+
+    # Local services (managed by nix-darwin)
+    127.0.0.1       chat.local        # Open WebUI        → localhost:4080
+    127.0.0.1       ollama.local      # Ollama API        → localhost:11434
+  '';
 
   # Shell
   programs.zsh.enable = true;
