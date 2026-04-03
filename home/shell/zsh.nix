@@ -94,9 +94,9 @@
       claude-work = "CLAUDE_CONFIG_DIR=~/.claude-work command claude";
       claude = "claude-work";
 
-      # gastown — separate workspaces per Claude identity
-      gt-personal = "CLAUDE_CONFIG_DIR=~/.claude-personal command gt";
-      gt-work = "CLAUDE_CONFIG_DIR=~/.claude-work command gt";
+      # gastown — separate towns per Claude identity
+      gt-personal = "GT_TOWN_ROOT=~/gt-personal CLAUDE_CONFIG_DIR=~/.claude-personal command gt";
+      gt-work = "GT_TOWN_ROOT=~/gt-work CLAUDE_CONFIG_DIR=~/.claude-work command gt";
       gt = "gt-work"; # default to work
 
       # nix-darwin rebuild
