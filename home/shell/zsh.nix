@@ -113,14 +113,8 @@
       claude-work = "CLAUDE_CONFIG_DIR=~/.claude-work command claude";
       claude = "claude-work";
 
-      # gastown — separate towns per Claude identity
-      gt-personal = "GT_TOWN_ROOT=~/.gt-personal CLAUDE_CONFIG_DIR=~/.claude-personal command gt";
-      gt-work = "GT_TOWN_ROOT=~/.gt-work CLAUDE_CONFIG_DIR=~/.claude-work command gt";
-      gt = "gt-work"; # default to work
-
-      # gas city — separate cities per Claude identity
-      gc-personal = "CLAUDE_CONFIG_DIR=~/.claude-personal command gc --city ~/.gc-personal";
-      gc-work = "CLAUDE_CONFIG_DIR=~/.claude-work command gc --city ~/.gc-work";
+      # gastown and gas city — functions are in initContent (need tmux logic)
+      gt = "gt-work";
       gc = "gc-work";
 
       # local services (docker)
@@ -269,6 +263,26 @@
           fi
           rm -f -- "$tmp"
         }
+
+        # Gastown / Gas City — ensure tmux session for multi-agent views
+        # If already in tmux, run directly. Otherwise, attach to existing
+        # session (sending the command as keys) or create a new one.
+        function _ensure_tmux() {
+          local session_name="$1"; shift
+          if [ -n "$TMUX" ]; then
+            "$@"
+          elif tmux has-session -t "$session_name" 2>/dev/null; then
+            tmux send-keys -t "$session_name" "$*" Enter
+            tmux attach -t "$session_name"
+          else
+            tmux new-session -s "$session_name" "$@"
+          fi
+        }
+
+        function gt-work()     { _ensure_tmux gt-work GT_TOWN_ROOT=~/.gt-work CLAUDE_CONFIG_DIR=~/.claude-work command gt "$@"; }
+        function gt-personal() { _ensure_tmux gt-personal GT_TOWN_ROOT=~/.gt-personal CLAUDE_CONFIG_DIR=~/.claude-personal command gt "$@"; }
+        function gc-work()     { _ensure_tmux gc-work CLAUDE_CONFIG_DIR=~/.claude-work command gc --city ~/.gc-work "$@"; }
+        function gc-personal() { _ensure_tmux gc-personal CLAUDE_CONFIG_DIR=~/.claude-personal command gc --city ~/.gc-personal "$@"; }
 
         # Ensure Nix paths take priority over Homebrew (brew shellenv runs in /etc/zshrc)
         export PATH="$HOME/.nix-profile/bin:/etc/profiles/per-user/$USER/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:$PATH"
