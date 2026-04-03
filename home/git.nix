@@ -45,9 +45,16 @@
       core = {
         editor = "nvim";
         autocrlf = "input";
-        pager = "diff-so-fancy | less --tabs=4 -RFX";
+        pager = "delta";
       };
-      interactive.diffFilter = "diff-so-fancy --patch";
+      interactive.diffFilter = "delta --color-only";
+      delta = {
+        navigate = true;
+        dark = true;
+        side-by-side = true;
+        line-numbers = true;
+        syntax-theme = "base16";
+      };
       pull.rebase = true;
       push.autoSetupRemote = true;
       merge.conflictstyle = "diff3";

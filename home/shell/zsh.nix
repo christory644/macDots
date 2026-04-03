@@ -241,4 +241,23 @@
     enable = true;
     enableZshIntegration = true;
   };
+
+  # Direnv (per-directory environment variables)
+  programs.direnv = {
+    enable = true;
+    enableZshIntegration = true;
+    nix-direnv.enable = true; # faster nix integration
+  };
+
+  # Atuin (better shell history — replaces ctrl+r)
+  programs.atuin = {
+    enable = true;
+    enableZshIntegration = true;
+    settings = {
+      style = "compact";
+      inline_height = 20;
+      show_preview = true;
+      enter_accept = true;
+    };
+  };
 }

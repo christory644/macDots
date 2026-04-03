@@ -31,19 +31,23 @@
     git
     git-lfs
     lazygit
-    diff-so-fancy
+    delta          # modern git diff viewer (replaces diff-so-fancy)
     just
     tokei
     commitizen
     httpie
+    gh
+    lazydocker     # TUI for Docker containers/images/volumes
+    glow           # terminal markdown renderer
 
     # Shell
     starship
     tmux
-    fastfetch # replaces deprecated neofetch
-
-    # Development tools (continued)
-    gh
+    fastfetch
+    direnv         # per-directory environment variables
+    atuin          # better shell history (ctrl+r replacement)
+    mise           # universal version manager (node, java, python, etc.)
+    sesh           # smart tmux session manager
 
     # Languages & runtimes
     go

@@ -15,6 +15,9 @@
     ./plugins/formatting.nix
     ./plugins/utils.nix
     ./plugins/alpha.nix
+    ./plugins/harpoon.nix
+    ./plugins/undotree.nix
+    ./plugins/diffview.nix
   ];
 
   programs.nixvim = {
