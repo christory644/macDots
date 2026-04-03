@@ -106,7 +106,7 @@
       gt = "gt-work"; # default to work
 
       # nix-darwin rebuild (nh gives colorized diffs + better progress)
-      rebuild = "nh darwin switch ~/repos/macDots";
+      rebuild = "nh darwin switch ~/repos/macDots -H macbook";
 
       # system info (run manually, not on startup)
       neofetch = "fastfetch";
