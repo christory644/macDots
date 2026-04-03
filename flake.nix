@@ -29,13 +29,11 @@
 
   outputs = { self, nixpkgs, nix-darwin, home-manager, nixvim, nix-homebrew, nix-vscode-extensions, ... }:
     let
-      system = "aarch64-darwin";
       username = "christopherstory";
       hostname = "macbook";
     in
     {
       darwinConfigurations.${hostname} = nix-darwin.lib.darwinSystem {
-        inherit system;
         specialArgs = { inherit username nixvim nix-vscode-extensions; };
         modules = [
           ./hosts/macbook/default.nix
