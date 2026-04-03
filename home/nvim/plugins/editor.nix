@@ -65,8 +65,10 @@
       # ── Illuminate (highlight references to symbol under cursor) ──────
       illuminate = {
         enable = true;
-        delay = 200;
-        filetypesDenylist = [ "NvimTree" "Trouble" "alpha" "oil" ];
+        settings = {
+          delay = 200;
+          filetypes_denylist = [ "NvimTree" "Trouble" "alpha" "oil" ];
+        };
       };
 
       # ── Auto pairs ────────────────────────────────────────────────────
