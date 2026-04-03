@@ -14,6 +14,7 @@
     ./plugins/editor.nix
     ./plugins/formatting.nix
     ./plugins/utils.nix
+    ./plugins/alpha.nix
   ];
 
   programs.nixvim = {
