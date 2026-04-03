@@ -42,12 +42,13 @@
     tmux
     fastfetch # replaces deprecated neofetch
 
-    # Languages & runtimes (managed by Nix)
+    # Development tools (continued)
+    gh
+
+    # Languages & runtimes
     go
-    nodejs_22
-    pnpm
-    yarn
     python3
+    # Node managed by NVM via Homebrew — not here
 
     # Build tools
     gnumake
