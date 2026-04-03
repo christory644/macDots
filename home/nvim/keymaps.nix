@@ -18,6 +18,23 @@
     { mode = "n"; key = "<leader>+"; action = "<C-a>"; options.desc = "Increment number"; }
     { mode = "n"; key = "<leader>-"; action = "<C-x>"; options.desc = "Decrement number"; }
 
+    # ── Close buffer quickly ─────────────────────────────────────────
+    { mode = "n"; key = "<S-q>"; action = "<cmd>bdelete<CR>"; options.desc = "Close buffer"; }
+
+    # ── Resize splits ────────────────────────────────────────────────
+    { mode = "n"; key = "<C-Up>"; action = "<cmd>resize +2<CR>"; options.desc = "Increase split height"; }
+    { mode = "n"; key = "<C-Down>"; action = "<cmd>resize -2<CR>"; options.desc = "Decrease split height"; }
+    { mode = "n"; key = "<C-Left>"; action = "<cmd>vertical resize -2<CR>"; options.desc = "Decrease split width"; }
+    { mode = "n"; key = "<C-Right>"; action = "<cmd>vertical resize +2<CR>"; options.desc = "Increase split width"; }
+
+    # ── Stay in visual indent mode ───────────────────────────────────
+    { mode = "v"; key = "<"; action = "<gv"; options.desc = "Indent left and reselect"; }
+    { mode = "v"; key = ">"; action = ">gv"; options.desc = "Indent right and reselect"; }
+
+    # ── Move lines in visual mode ────────────────────────────────────
+    { mode = "v"; key = "J"; action = ":m '>+1<CR>gv=gv"; options.desc = "Move selection down"; }
+    { mode = "v"; key = "K"; action = ":m '<-2<CR>gv=gv"; options.desc = "Move selection up"; }
+
     # ── Window splits ─────────────────────────────────────────────────
     { mode = "n"; key = "<leader>sv"; action = "<C-w>v"; options.desc = "Split window vertically"; }
     { mode = "n"; key = "<leader>sh"; action = "<C-w>s"; options.desc = "Split window horizontally"; }

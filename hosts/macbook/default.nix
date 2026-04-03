@@ -58,6 +58,13 @@
     # Build tools
     gnumake
     cmake
+
+    # Nix tools
+    nh             # nicer nix rebuild output (nh darwin switch)
+
+    # Fun
+    cowsay
+    fortune
   ];
 
   # System settings

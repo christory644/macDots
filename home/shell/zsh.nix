@@ -7,6 +7,12 @@
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
     enableCompletion = true;
+    historySubstringSearch = {
+      enable = true;
+      # Up/Down arrows search history matching current input
+      searchUpKey = [ "^[[A" ];
+      searchDownKey = [ "^[[B" ];
+    };
 
     history = {
       size = 10000;
@@ -99,8 +105,8 @@
       gt-work = "GT_TOWN_ROOT=~/gt-work CLAUDE_CONFIG_DIR=~/.claude-work command gt";
       gt = "gt-work"; # default to work
 
-      # nix-darwin rebuild
-      rebuild = "sudo darwin-rebuild switch --flake ~/repos/macDots#macbook";
+      # nix-darwin rebuild (nh gives colorized diffs + better progress)
+      rebuild = "nh darwin switch ~/repos/macDots";
 
       # system info (run manually, not on startup)
       neofetch = "fastfetch";

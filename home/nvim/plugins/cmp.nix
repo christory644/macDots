@@ -48,6 +48,7 @@
 
           sources = [
             { name = "nvim_lsp"; }
+            { name = "nvim_lua"; }
             { name = "luasnip"; }
             { name = "buffer"; }
             { name = "path"; }
@@ -66,6 +67,9 @@
       # VS Code-style snippet collection
       friendly-snippets.enable = true;
 
+      # Completion sources
+      cmp-cmdline.enable = true;
+
       # Icons in completion menu
       lspkind = {
         enable = true;
@@ -73,12 +77,30 @@
           enable = true;
           menu = {
             nvim_lsp = "[LSP]";
+            nvim_lua = "[Lua]";
             luasnip = "[Snip]";
             buffer = "[Buf]";
             path = "[Path]";
+            cmdline = "[Cmd]";
           };
         };
       };
     };
+
+    # Cmdline completion (: and / prompts)
+    extraConfigLua = ''
+      local cmp = require("cmp")
+      cmp.setup.cmdline(":", {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = cmp.config.sources(
+          { { name = "path" } },
+          { { name = "cmdline" } }
+        ),
+      })
+      cmp.setup.cmdline("/", {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = { { name = "buffer" } },
+      })
+    '';
   };
 }
