@@ -30,7 +30,7 @@
       REPOS_HOME = "$HOME/repos";
       DOTS_HOME = "$HOME/repos/macDots";
       VIMCONFIG = "$HOME/.config/nvim";
-      BAT_THEME = "night-owl";
+      BAT_THEME = "Visual Studio Dark+";
       GOPATH = "$HOME/go";
       KEYTIMEOUT = "1";
     };

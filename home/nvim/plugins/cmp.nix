@@ -19,19 +19,28 @@
             "<C-Space>".__raw = "cmp.mapping.complete()";
             "<C-e>".__raw = "cmp.mapping.abort()";
             "<C-y>".__raw = "cmp.mapping.confirm({ select = true })";
-            "<C-l>".__raw = ''
-              cmp.mapping(function()
+            "<CR>".__raw = "cmp.mapping.confirm({ select = false })";
+            "<Tab>".__raw = ''
+              cmp.mapping(function(fallback)
                 local luasnip = require("luasnip")
-                if luasnip.expand_or_locally_jumpable() then
+                if cmp.visible() then
+                  cmp.select_next_item()
+                elseif luasnip.expand_or_locally_jumpable() then
                   luasnip.expand_or_jump()
+                else
+                  fallback()
                 end
               end, { "i", "s" })
             '';
-            "<C-h>".__raw = ''
-              cmp.mapping(function()
+            "<S-Tab>".__raw = ''
+              cmp.mapping(function(fallback)
                 local luasnip = require("luasnip")
-                if luasnip.locally_jumpable(-1) then
+                if cmp.visible() then
+                  cmp.select_prev_item()
+                elseif luasnip.locally_jumpable(-1) then
                   luasnip.jump(-1)
+                else
+                  fallback()
                 end
               end, { "i", "s" })
             '';
