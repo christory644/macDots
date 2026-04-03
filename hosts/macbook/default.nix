@@ -55,6 +55,11 @@
     dolt           # version-controlled SQL DB (Gastown dependency)
     # Node managed by NVM via Homebrew — not here
 
+    # AI coding agents (for Gastown multi-agent orchestration)
+    aider-chat     # AI pair programming (supports Ollama, OpenAI, Claude, etc.)
+    opencode       # AI coding agent (supports any OpenAI-compatible endpoint)
+    ollama         # local LLM server (llama, codellama, mistral, etc.)
+
     # Build tools
     gnumake
     cmake
