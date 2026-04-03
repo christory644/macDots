@@ -827,29 +827,59 @@ gt-personal rig settings set important-project role_agents.polecat claude
 
 ## Hardware Planning
 
-### Your Current Machine (M3, 18GB)
+### Current Machine (M3, 18GB)
 
 Usable but constrained:
 - Can run 7B models comfortably (qwen2.5-coder:7b)
 - 14B is a squeeze (leaves little room for IDE + browser + tmux)
-- Cloud APIs (Claude, GPT-4o) will be your primary for serious work
+- Cloud APIs (Claude, GPT-4o) are the primary for serious work
 
-### What to Look For in the New Machine
+### Incoming Machine (M4 Max, 128GB, 40 GPU cores)
 
-**32GB** — The practical minimum for local AI coding:
-- Runs 14B models with room to breathe
-- Can load one model + full dev stack
-- Good for: aider/pi with qwen2.5-coder:14b
+This changes everything. What 128GB unified memory + 40 GPU cores unlocks:
 
-**64GB** — The sweet spot:
-- Runs 32B models comfortably, 70B in a pinch
-- MLX backend activates (faster inference)
-- Can keep a model loaded while running everything else
-- Good for: all tools, most models, Gastown with local patrol agents
+**Model capacity:**
+- `llama3.3:70b` (Q4_K_M, ~46GB) — runs comfortably with 80GB headroom for OS + apps + context
+- `qwen2.5:72b` — top-tier local coding model
+- `deepseek-r1:70b` — chain-of-thought reasoning, excellent for debugging complex systems
+- Multiple models simultaneously: a 70B polecat model + a 14B patrol model loaded at once (~57GB total)
+- 32K+ context windows on 70B models without memory pressure
 
-**128GB** — Future-proof:
-- Runs 70B models with large context windows
-- Multiple models simultaneously (patrol + worker)
-- Good for: full Gastown stack running entirely local
+**Performance expectations (M4 Max, 40 GPU cores, MLX backend):**
 
-**Recommendation:** 64GB minimum, 128GB if budget allows. The M4 Max with 128GB unified memory would let you run a 70B model for polecats and a 14B model for patrols simultaneously — a fully local Gastown setup that rivals cloud API quality.
+| Model | Est. Tokens/sec | RAM Used | Notes |
+|---|---|---|---|
+| qwen2.5-coder:7b | 50-70 tok/s | ~6 GB | Blazing fast, good for patrol agents |
+| qwen2.5-coder:14b | 35-50 tok/s | ~11 GB | Great quality, fast enough for interactive |
+| qwen3:32b | 20-30 tok/s | ~22 GB | Excellent quality, still responsive |
+| llama3.3:70b | 12-18 tok/s | ~46 GB | GPT-4-class, usable for real coding |
+| deepseek-r1:70b | 10-15 tok/s | ~46 GB | Slower but chain-of-thought is worth it |
+
+**Recommended Ollama settings for this machine:**
+```bash
+export OLLAMA_FLASH_ATTENTION=1
+export OLLAMA_KV_CACHE_TYPE=q8_0
+export OLLAMA_KEEP_ALIVE=30m
+export OLLAMA_NUM_PARALLEL=4        # serve 4 concurrent requests
+export OLLAMA_MAX_LOADED_MODELS=3   # keep 3 models in memory
+```
+
+**Recommended Gastown configuration (fully local):**
+
+```bash
+# Work town — cloud for polecats, local for everything else
+gt config cost-tier custom
+gt rig settings set <rig> role_agents.witness pi        # pi + qwen2.5-coder:14b
+gt rig settings set <rig> role_agents.refinery opencode # opencode + qwen2.5-coder:14b
+# polecats on claude (best quality for production code)
+
+# Or go full local — 70B polecats rival cloud quality
+gt config default-agent aider-local
+gt config agent set aider-70b 'aider --model ollama_chat/llama3.3:70b --no-auto-commits' --provider claude
+gt rig settings set <rig> role_agents.polecat aider-70b
+
+# Personal town — everything local, zero cost
+gt-personal config default-agent aider-local
+```
+
+**The hybrid sweet spot:** Use Claude (cloud) for polecats on work repos where code quality is critical. Use local 14B models for patrol agents (witness, refinery, deacon) — they're doing health checks and merge queue processing, not writing production code. This gives you cloud-quality output where it matters and zero API cost for the orchestration overhead.
