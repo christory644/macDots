@@ -3,7 +3,7 @@
 {
   programs.zsh = {
     enable = true;
-    dotDir = "${config.home.homeDirectory}/.config/zsh";
+    # dotDir omitted — zsh files live in $HOME (default, avoids sourcing chain issues)
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
     enableCompletion = true;
@@ -11,7 +11,7 @@
     history = {
       size = 10000;
       save = 10000;
-      path = "$HOME/.config/zsh/.zhistory";
+      path = "$HOME/.zsh_history";
       ignoreDups = true;
       ignoreAllDups = true;
       share = true;
@@ -83,7 +83,7 @@
       batl = "bat --paging=never -l log";
 
       # shell
-      resource_zsh = "source $HOME/.config/zsh/.zshrc";
+      resource_zsh = "source $HOME/.zshrc";
 
       # claude code — separate personal/work configs
       claude-personal = "CLAUDE_CONFIG_DIR=~/.claude-personal command claude";
