@@ -20,7 +20,8 @@
 
     # Homebrew formulas — only for things not in nixpkgs or that work better via brew
     brews = [
-      "borders" # JankyBorders — not in nixpkgs, needs tap
+      "borders"  # JankyBorders — not in nixpkgs, needs tap
+      "gastown"  # multi-agent orchestration (Steve Yegge) — not in nixpkgs
     ];
 
     # GUI applications (casks) — Nix can't handle macOS .app bundles well

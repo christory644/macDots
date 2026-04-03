@@ -96,6 +96,11 @@
       claude-work = "CLAUDE_CONFIG_DIR=~/.claude-work command claude";
       claude = "claude-work";
 
+      # gastown — separate workspaces per Claude identity
+      gt-personal = "CLAUDE_CONFIG_DIR=~/.claude-personal command gt";
+      gt-work = "CLAUDE_CONFIG_DIR=~/.claude-work command gt";
+      gt = "gt-work"; # default to work
+
       # nix-darwin rebuild
       rebuild = "sudo darwin-rebuild switch --flake ~/repos/macDots#macbook";
 

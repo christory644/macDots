@@ -52,6 +52,7 @@
     # Languages & runtimes
     go
     python3
+    dolt           # version-controlled SQL DB (Gastown dependency)
     # Node managed by NVM via Homebrew — not here
 
     # Build tools
