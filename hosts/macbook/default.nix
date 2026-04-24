@@ -51,10 +51,27 @@
 
     # Languages & runtimes
     go
+    elixir
+    zig
+    php
     python3
+    rustup         # Rust toolchain manager (manages rustc, cargo, etc.)
     bun            # fast JS runtime (used for oh-my-pi)
+    yarn           # JS package manager
     dolt           # version-controlled SQL DB (Gastown dependency)
     # Node managed by NVM via Homebrew — not here
+
+    # Java
+    jdk17
+    jdk21
+    maven
+    quarkus        # Java framework CLI
+
+    # Infrastructure
+    terraform
+
+    # Static sites & content
+    zola           # static site generator (Rust)
 
     # Language formatters (used by conform.nvim)
     elmPackages.elm-format   # Elm formatter
@@ -71,7 +88,8 @@
     ast-grep       # structural code search/replace by AST patterns
 
     # Git workflow
-    git-branchless # stacked PRs / dependent branch management
+    git-branchless   # stacked PRs / dependent branch management
+    git-filter-repo  # git history rewriting
 
     # Build tools
     gnumake

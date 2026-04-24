@@ -25,11 +25,14 @@
       "gastown"           # multi-agent orchestration (Steve Yegge) — not in nixpkgs
       "gascity"           # Gas City — open-source orchestration SDK (successor to Gastown)
       "pi-coding-agent"   # minimal AI coding agent (supports Ollama, Claude, OpenAI, etc.)
+      "nvm"               # Node version manager — not in nixpkgs (migrate to mise when ready)
+      "gemini-cli"        # Google Gemini CLI coding agent (fast updates)
     ];
 
     # GUI applications (casks) — Nix can't handle macOS .app bundles well
     casks = [
       # Terminals
+      "alacritty"
       "cmux"
       "kitty"
       "iterm2"
@@ -48,6 +51,7 @@
       # AI coding tools (managed by Homebrew for fast updates — these ship multiple times/day)
       "claude-code"
       "codex"
+      "coderabbit"
 
       # Window management
       "aerospace"
@@ -57,6 +61,9 @@
       "raycast"
       "maccy"
       "zoom"
+
+      # Communication
+      "discord"
 
       # Media
       "spotify"
