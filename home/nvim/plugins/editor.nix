@@ -112,7 +112,8 @@
       substitute-nvim
       grug-far-nvim
       (pkgs.vimUtils.buildVimPlugin {
-        name = "vim-maximizer";
+        pname = "vim-maximizer";
+        version = "unstable";
         src = pkgs.fetchFromGitHub {
           owner = "szw";
           repo = "vim-maximizer";

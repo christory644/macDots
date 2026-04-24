@@ -5,7 +5,8 @@
     extraPlugins = with pkgs.vimPlugins; [
       alpha-nvim
       (pkgs.vimUtils.buildVimPlugin {
-        name = "alpha-cowsays-nvim";
+        pname = "alpha-cowsays-nvim";
+        version = "unstable";
         src = pkgs.fetchFromGitHub {
           owner = "ozthemagician";
           repo = "alpha-cowsays-nvim";
