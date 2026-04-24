@@ -9,7 +9,7 @@
 
     includes = [
       {
-        condition = "gitdir:~/repos/certifyos/";
+        condition = "hasconfig:remote.*.url:git@github.com-chris-certifyos:CertifyOS/**";
         contents = {
           user = {
             name = "chris-certifyos";
