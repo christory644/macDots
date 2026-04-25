@@ -29,7 +29,7 @@ That single command:
 
 1. Installs Xcode Command Line Tools
 2. Clones this repo via HTTPS (no SSH keys needed)
-3. Installs Nix (Determinate Systems installer)
+3. Installs Nix via Lix (recommended by nix-darwin)
 4. Decrypts SSH keys from `secrets/` (prompts for passphrase)
 5. Switches the repo remote from HTTPS to SSH
 6. Builds and activates nix-darwin (installs everything)

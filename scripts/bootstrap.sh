@@ -29,11 +29,12 @@ fi
 
 # ── Nix ──────────────────────────────────────────────────────────────
 if ! command -v nix &>/dev/null; then
-  echo "==> Installing Nix (Determinate Systems installer)..."
-  curl --proto '=https' --tlsv1.2 -sSf -L \
-    https://install.determinate.systems/nix | sh -s -- install
+  echo "==> Installing Nix via Lix (recommended by nix-darwin)..."
+  curl -sSf -L https://install.lix.systems/lix | sh -s -- install
   # shellcheck disable=SC1091
-  . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+  . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh 2>/dev/null \
+    || . /nix/var/nix/profiles/default/etc/profile.d/nix.sh 2>/dev/null \
+    || true
 fi
 
 # ── Decrypt secrets (SSH keys, private repo manifest) ────────────────
