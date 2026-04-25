@@ -78,7 +78,8 @@
       "spotify"
 
       # Hardware
-      "insta360-link-controller"
+      # insta360-link-controller — requires sudo TTY for .pkg installer, install manually:
+      #   brew install --cask insta360-link-controller
     ];
 
   };
