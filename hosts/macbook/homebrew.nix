@@ -22,6 +22,8 @@
     # Homebrew formulas — only for things not in nixpkgs or that work better via brew
     brews = [
       "borders"           # JankyBorders — not in nixpkgs, needs tap
+      "elm"               # Elm compiler — nixpkgs requires GHC from source (broken on macOS/Lix)
+      "elm-format"        # Elm formatter — same GHC issue
       "gastown"           # multi-agent orchestration (Steve Yegge) — not in nixpkgs
       "gascity"           # Gas City — open-source orchestration SDK (successor to Gastown)
       "pi-coding-agent"   # minimal AI coding agent (supports Ollama, Claude, OpenAI, etc.)

@@ -56,7 +56,7 @@
 
     # Languages & runtimes
     go
-    elmPackages.elm          # Elm compiler
+    # Elm: installed via Homebrew (GHC fails to build from source on macOS with Lix)
     elixir
     zig
     php
@@ -85,7 +85,7 @@
     zola           # static site generator (Rust)
 
     # Language formatters (used by conform.nvim)
-    elmPackages.elm-format   # Elm formatter (pre-built binary from cache)
+    # elm-format: installed via Homebrew (GHC fails to build from source on macOS with Lix)
     # Java: formatted by Spotless (palantir style) via Gradle — no standalone formatter needed
 
     # AI coding agents (for Gastown multi-agent orchestration)
