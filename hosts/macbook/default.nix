@@ -218,11 +218,8 @@
     127.0.0.1       ollama.local      # Ollama API        → localhost:11434
   '';
 
-  # Desktop wallpaper — rotates from ~/repos/wallpapers (christory644/wallpapers)
-  # Clone the repo on a new machine: git clone git@github.com-christory644:christory644/wallpapers ~/repos/wallpapers
-  system.activationScripts.postActivation.text = ''
-    osascript -e 'tell application "System Events" to tell every desktop to set pictures folder to POSIX file "/Users/${username}/repos/wallpapers"' 2>/dev/null || true
-  '';
+  # Desktop wallpaper — managed by home-manager activation (needs to run as user, not root)
+  # See home/default.nix → home.activation.setWallpaper
 
   # Shell
   programs.zsh.enable = true;
