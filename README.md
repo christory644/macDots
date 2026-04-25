@@ -4,52 +4,108 @@ Declarative macOS configuration using **nix-darwin** + **home-manager** + **NixV
 
 > there are many others like it, but these are mine.
 
+## Using this repo
+
+This is my personal system config. You're welcome to browse, fork, and steal ideas — but **the secrets, SSH configs, and repo manifests are mine**. If you fork this:
+
+1. Delete `secrets/` (those are my age-encrypted SSH keys — useless to you)
+2. Replace `home/ssh.nix` with your own SSH host config
+3. Replace `home/git.nix` with your own identity
+4. Edit `repos.yml` with your own repos (or delete it)
+5. Edit `hosts/macbook/homebrew.nix` to match your apps
+
+The bootstrap script gracefully skips SSH decryption and repo cloning if it doesn't find my encrypted keys, so it'll still work for a fork — you just won't get my keys (obviously).
+
+## Set up a new Mac
+
+On a brand new machine, run:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/christory644/macDots/main/scripts/bootstrap.sh | bash
+```
+
+That single command:
+
+1. Installs Xcode Command Line Tools
+2. Clones this repo via HTTPS (no SSH keys needed)
+3. Installs Nix (Determinate Systems installer)
+4. Decrypts SSH keys from `secrets/` (prompts for passphrase)
+5. Switches the repo remote from HTTPS to SSH
+6. Builds and activates nix-darwin (installs everything)
+7. Installs the default Rust toolchain via rustup
+8. Clones all repos listed in `repos.yml`
+
+After bootstrap, open a new terminal and run `rebuild` to verify.
+
+### Post-bootstrap
+
+```bash
+# Re-auth with Google Cloud
+gcloud auth login
+gcloud auth application-default login
+
+# Install Node version(s) via nvm
+nvm install 24
+
+# All future config changes
+rebuild
+```
+
 ## What's managed
 
 | Layer | Tool | Manages |
 |-------|------|---------|
-| System | nix-darwin | CLI packages, system preferences, fonts, shells |
-| GUI Apps | nix-homebrew | Homebrew casks (cmux, kitty, aerospace, browsers, etc.) |
-| User Config | home-manager | Shell (zsh), git, tmux, starship prompt, terminal configs |
+| System | nix-darwin | CLI packages, system preferences, fonts, shells, trackpad, keyboard |
+| GUI Apps | nix-homebrew | Homebrew casks + formulas (terminals, browsers, AI tools, etc.) |
+| User Config | home-manager | Shell (zsh), git, SSH, tmux, starship prompt, terminal configs |
 | Editor | NixVim | Neovim with LSP, treesitter, DAP debugging, telescope, etc. |
+| Secrets | age | SSH keys encrypted in repo, decrypted on bootstrap |
+| Repos | repos.yml | Declarative list of git repos cloned to ~/repos/ |
 
-## Prerequisites
+### System settings managed by nix-darwin
 
-1. macOS on Apple Silicon
-2. [Nix via Lix installer](https://install.lix.systems) (recommended by nix-darwin)
+- **Dock** — autohide, magnification, no recents, no MRU spaces
+- **Finder** — column view, show hidden files, path bar, no desktop icons
+- **Keyboard** — fastest repeat rate, no press-and-hold (key repeat everywhere)
+- **Trackpad** — tap to click, high tracking speed, force click
+- **Menu bar** — clock format, battery %, Bluetooth, Focus, Now Playing
+- **Global** — dark mode, always-show scroll bars, all auto-correct disabled, save to disk by default
+- **Siri** — disabled
+- **Desktop** — wallpaper rotation from `~/repos/wallpapers`
 
-## Setup
+### Languages and runtimes
 
-```bash
-# 1. Install Nix via Lix
-curl -sSf -L https://install.lix.systems/lix | sh -s -- install
+| Language | Managed by | Notes |
+|----------|-----------|-------|
+| Go, Python, Elixir, Zig, PHP | Nix | Declarative, pinned to nixpkgs |
+| Java 17, Java 21 | Nix | JDKs + Maven + Quarkus CLI |
+| Rust | rustup (binary from Nix) | `rustup` installed by nix, toolchains managed by rustup |
+| Node | nvm (from Homebrew) | Version manager, migrate to mise when ready |
+| Bun | Nix | Fast JS runtime |
 
-# 2. Clone this repo
-git clone git@github.com:christory644/macDots.git ~/repos/macDots
-cd ~/repos/macDots
+### AI / ML tooling
 
-# 3. First build (darwin-rebuild doesn't exist yet)
-sudo nix run nix-darwin/master#darwin-rebuild -- switch --flake .#macbook
-
-# 4. Open a new terminal — everything should be configured
-# 5. All future rebuilds:
-rebuild   # alias for: sudo darwin-rebuild switch --flake ~/repos/macDots#macbook
-```
+| Tool | Managed by | Purpose |
+|------|-----------|---------|
+| Ollama | Nix | Local LLM server (MLX backend enabled) |
+| mlx-lm | Homebrew | Apple MLX fine-tuning + inference |
+| Claude Code | Homebrew cask | AI coding agent |
+| Codex | Homebrew cask | AI coding agent |
+| Gemini CLI | Homebrew | AI coding agent |
+| OpenCode | Nix | AI coding agent |
 
 ## Day-to-day workflow
 
 ### Making changes
 
-Edit the relevant `.nix` file, commit, then rebuild:
+Edit the relevant `.nix` file, then rebuild:
 
 ```bash
-# Edit something...
 nvim ~/repos/macDots/home/shell/zsh.nix
 
-# Commit (flakes only see committed files!)
+# Flakes only see committed/staged files
 cd ~/repos/macDots && git add -A && git commit -m "add new alias"
 
-# Apply
 rebuild
 ```
 
@@ -59,29 +115,29 @@ rebuild
 |---|---|
 | CLI tool (ripgrep, jq, etc.) | `hosts/macbook/default.nix` → `systemPackages` |
 | GUI app (Slack, Discord, etc.) | `hosts/macbook/homebrew.nix` → `casks` |
-| Homebrew formula (nvm, php, etc.) | `hosts/macbook/homebrew.nix` → `brews` |
+| Homebrew formula (nvm, etc.) | `hosts/macbook/homebrew.nix` → `brews` |
 | Neovim plugin | `home/nvim/plugins/` (new file + add to `default.nix` imports) |
 | Shell alias | `home/shell/zsh.nix` → `shellAliases` |
-| Git alias | `home/git.nix` → `settings.alias` |
+| Git config | `home/git.nix` |
+| SSH host | `home/ssh.nix` |
 | Environment variable | `home/shell/zsh.nix` → `sessionVariables` |
 | macOS system default | `hosts/macbook/default.nix` → `system.defaults` |
 | tmux keybind or plugin | `home/tmux.nix` |
+| New repo to track | `repos.yml` |
 
 ### Updating all dependencies
 
 ```bash
-cd ~/repos/macDots
-nix flake update   # updates flake.lock to latest nixpkgs, home-manager, etc.
-rebuild
+update   # alias for: nix flake update && rebuild
 ```
 
-### Searching for packages
+### Rotating SSH keys
 
 ```bash
-# Search nixpkgs
-nix search nixpkgs <package-name>
-
-# Or browse: https://search.nixos.org/packages
+# After generating new keys in ~/.ssh/:
+./scripts/encrypt-keys.sh   # re-encrypts with your passphrase
+git add secrets/ && git commit -m "rotate SSH keys"
+git push
 ```
 
 ## Structure
@@ -90,39 +146,38 @@ nix search nixpkgs <package-name>
 .
 ├── flake.nix                     # Entry point — all inputs and module wiring
 ├── flake.lock                    # Pinned dependency versions
+├── repos.yml                    # Declarative list of git repos to clone
+├── secrets/                      # Age-encrypted SSH keys (safe to commit)
+│   ├── christory644.age
+│   ├── christory644.pub.age
+│   ├── chris-certifyos.age
+│   └── chris-certifyos.pub.age
+├── scripts/
+│   ├── bootstrap.sh              # One-command setup for a fresh Mac
+│   ├── encrypt-keys.sh           # Re-encrypt SSH keys after rotation
+│   └── clone-repos.sh            # Clone all repos from repos.yml
 ├── hosts/macbook/
 │   ├── default.nix               # System packages, macOS settings, fonts
 │   └── homebrew.nix              # GUI casks + Homebrew formulas
 ├── home/
 │   ├── default.nix               # Home-manager entry + font symlinks
 │   ├── shell/
-│   │   ├── zsh.nix               # Zsh config, aliases, direnv, atuin, fzf
-│   │   └── starship.nix          # Starship prompt (Night Owl theme)
+│   │   ├── zsh.nix               # Zsh config, aliases, Ollama env, integrations
+│   │   └── starship.nix          # Starship prompt
 │   ├── git.nix                   # Git config, delta diffs, identity management
-│   ├── tmux.nix                  # Tmux config + Night Owl theme
+│   ├── ssh.nix                   # SSH config (GitHub host aliases)
+│   ├── tmux.nix                  # Tmux config + plugins
+│   ├── vscode.nix                # VS Code settings + extensions
+│   ├── ollama.nix                # Ollama LLM server config
 │   ├── terminal/
-│   │   ├── ghostty.nix           # cmux/Ghostty config (Night Owl)
+│   │   ├── ghostty.nix           # cmux/Ghostty config
 │   │   └── kitty.nix             # Kitty fallback config
 │   ├── aerospace.toml            # AeroSpace window manager
 │   └── nvim/                     # NixVim (full Neovim IDE)
 │       ├── default.nix           # Options + plugin imports
 │       ├── keymaps.nix           # General keybindings
-│       ├── theme.nix             # Night Owl + transparency
-│       └── plugins/
-│           ├── alpha.nix         # Dashboard (cowsays)
-│           ├── cmp.nix           # Completion (nvim-cmp + LuaSnip)
-│           ├── dap.nix           # Debug adapters (Go, Python)
-│           ├── diffview.nix      # Side-by-side git diffs
-│           ├── editor.nix        # Oil, flash, surround, nvim-tree, etc.
-│           ├── formatting.nix    # Conform + nvim-lint
-│           ├── git.nix           # Gitsigns + lazygit
-│           ├── harpoon.nix       # Quick file switching
-│           ├── lsp.nix           # 16+ LSP servers (no Mason)
-│           ├── telescope.nix     # Fuzzy finder
-│           ├── treesitter.nix    # Syntax highlighting (29 grammars)
-│           ├── ui.nix            # Lualine, bufferline, which-key
-│           ├── undotree.nix      # Visual undo history
-│           └── utils.nix         # Trouble, todo-comments, auto-session
+│       ├── theme.nix             # Theme + transparency
+│       └── plugins/              # LSP, treesitter, telescope, DAP, etc.
 └── rollback-to-pre-nix.sh        # Emergency rollback script
 ```
 
@@ -154,8 +209,6 @@ Leader key: `Space`
 | `<leader>c` | Code | `ca` code action, `cr` rename |
 | `<leader>u` | Undotree | Toggle visual undo history |
 | `<leader>1-4` | Harpoon | Jump to harpooned file 1-4 |
-| `<leader>ha` | Harpoon add | Add current file to harpoon |
-| `<leader>hh` | Harpoon menu | Toggle harpoon quick menu |
 | `g` | Go to | `gd` definition, `gr` references, `gi` implementation |
 | `s` | Substitute | `ss` line, `S` to EOL |
 | `-` | Oil | Open parent directory |
@@ -213,26 +266,11 @@ Or use **sesh** for smart session management: `sesh connect <project>`
 - **resurrect** — `prefix ctrl+s` save, `prefix ctrl+r` restore
 - **continuum** — auto-saves every 10 seconds
 
-## Key tools
-
-| Tool | Purpose | Invoke |
-|------|---------|--------|
-| **direnv** | Per-project env vars — auto-loads `.envrc` on cd | Automatic |
-| **atuin** | Better shell history search | `ctrl+r` |
-| **mise** | Universal version manager (node, java, python...) | `mise use node@20` |
-| **sesh** | Smart tmux session manager | `sesh connect` |
-| **lazygit** | TUI git client | `lazygit` or `<leader>gl` in nvim |
-| **lazydocker** | TUI Docker manager | `lazydocker` |
-| **delta** | Syntax-highlighted git diffs | Automatic (git pager) |
-| **glow** | Terminal markdown viewer | `glow README.md` |
-| **telescope** | Fuzzy find anything in nvim | `<leader>ff`, `<leader>fs` |
-| **harpoon** | Quick-switch between files in nvim | `<leader>ha` add, `<leader>1-4` jump |
-
 ## Git identity
 
 - **Default:** Personal — Christopher Story / christory@pm.me
-- **Work:** Auto-switches for repos under `~/repos/certifyos/` via `includeIf`
-- **SSH keys:** Managed separately via `~/.ssh/config` (not in this repo)
+- **Work:** Auto-switches for CertifyOS repos via `hasconfig:remote.*.url` match
+- **SSH keys:** Managed by home-manager (`home/ssh.nix`), encrypted in `secrets/`
 
 ## Secrets
 
