@@ -36,6 +36,17 @@
       darwinConfigurations.${hostname} = nix-darwin.lib.darwinSystem {
         specialArgs = { inherit username nixvim nix-vscode-extensions; };
         modules = [
+          # Overlay: fix packages that fail to build from source on macOS
+          {
+            nixpkgs.overlays = [
+              (final: prev: {
+                direnv = prev.direnv.overrideAttrs (old: {
+                  doCheck = false;  # test suite hangs on macOS (checkPhase >1hr)
+                });
+              })
+            ];
+          }
+
           ./hosts/macbook/default.nix
           ./hosts/macbook/homebrew.nix
 
