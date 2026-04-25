@@ -14,6 +14,24 @@ HOSTNAME="macbook"
 
 echo "==> macDots bootstrap"
 
+# ── SSH keys (decrypt from repo) ─────────────────────────────────────
+if [ ! -f "$HOME/.ssh/christory644" ] || [ ! -f "$HOME/.ssh/chris-certifyos" ]; then
+  echo "==> Decrypting SSH keys (enter the passphrase you used to encrypt them)"
+  mkdir -p "$HOME/.ssh"
+
+  AGE="age"
+  command -v age &>/dev/null || AGE="nix run nixpkgs#age --"
+
+  for name in christory644 chris-certifyos; do
+    $AGE -d -o "$HOME/.ssh/${name}" "$DOTS/secrets/${name}.age"
+    chmod 600 "$HOME/.ssh/${name}"
+    $AGE -d -o "$HOME/.ssh/${name}.pub" "$DOTS/secrets/${name}.pub.age"
+    chmod 644 "$HOME/.ssh/${name}.pub"
+  done
+
+  echo "==> SSH keys decrypted and installed."
+fi
+
 # ── Xcode Command Line Tools (git, clang, etc.) ─────────────────────
 if ! xcode-select -p &>/dev/null; then
   echo "==> Installing Xcode Command Line Tools..."
@@ -43,6 +61,10 @@ if ! command -v rustc &>/dev/null; then
   echo "==> Installing default Rust toolchain via rustup..."
   rustup-init -y --no-modify-path
 fi
+
+# ── Clone all repos from manifest ────────────────────────────────────
+echo "==> Cloning repos from repos.yml..."
+"$DOTS/scripts/clone-repos.sh"
 
 # ── Post-setup verification ──────────────────────────────────────────
 echo ""
