@@ -73,6 +73,7 @@
     jdk17
     jdk21
     maven
+    gradle
     quarkus        # Java framework CLI
 
     # Cloud & infrastructure

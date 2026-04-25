@@ -239,8 +239,8 @@
         bindkey -M visual S add-surround
 
         # -- Tool integrations --
-        # NVM (if still needed alongside Nix nodejs)
-        [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && source "/opt/homebrew/opt/nvm/nvm.sh"
+        # mise (universal version manager — replaces nvm, jenv, etc.)
+        eval "$(mise activate zsh)"
 
         # PATH additions
         export PATH="$HOME/go/bin:$PATH"

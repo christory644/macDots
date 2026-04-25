@@ -25,7 +25,6 @@
       "gastown"           # multi-agent orchestration (Steve Yegge) — not in nixpkgs
       "gascity"           # Gas City — open-source orchestration SDK (successor to Gastown)
       "pi-coding-agent"   # minimal AI coding agent (supports Ollama, Claude, OpenAI, etc.)
-      "nvm"               # Node version manager — not in nixpkgs (migrate to mise when ready)
       "gemini-cli"        # Google Gemini CLI coding agent (fast updates)
       "mlx-lm"            # Apple MLX LLM toolkit — fine-tuning + inference on Apple Silicon
     ];

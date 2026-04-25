@@ -45,8 +45,8 @@ After bootstrap, open a new terminal and run `rebuild` to verify.
 gcloud auth login
 gcloud auth application-default login
 
-# Install Node version(s) via nvm
-nvm install 24
+# Install Node version(s) via mise
+mise use -g node@24
 
 # All future config changes
 rebuild
@@ -80,9 +80,9 @@ rebuild
 | Language | Managed by | Notes |
 |----------|-----------|-------|
 | Go, Python, Elixir, Zig, PHP | Nix | Declarative, pinned to nixpkgs |
-| Java 17, Java 21 | Nix | JDKs + Maven + Quarkus CLI |
+| Java 17, Java 21 | Nix | JDKs + Maven + Gradle + Quarkus CLI |
 | Rust | rustup (binary from Nix) | `rustup` installed by nix, toolchains managed by rustup |
-| Node | nvm (from Homebrew) | Version manager, migrate to mise when ready |
+| Node | mise (from Nix) | Universal version manager (also handles Java, Python, etc.) |
 | Bun | Nix | Fast JS runtime |
 
 ### AI / ML tooling
