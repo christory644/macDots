@@ -60,10 +60,7 @@
     run ${pkgs.bat}/bin/bat cache --build 2>/dev/null || true
   '';
 
-  # Desktop wallpaper — rotates from ~/repos/wallpapers
-  home.activation.setWallpaper = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    run /usr/bin/osascript -e 'tell application "System Events" to tell every desktop to set pictures folder to POSIX file "/Users/${username}/repos/wallpapers"' 2>/dev/null || true
-  '';
+  # Desktop wallpaper — see hosts/macbook/default.nix postActivation (must run after Dock restart)
 
   programs.home-manager.enable = true;
 }

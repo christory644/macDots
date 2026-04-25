@@ -218,8 +218,12 @@
     127.0.0.1       ollama.local      # Ollama API        → localhost:11434
   '';
 
-  # Desktop wallpaper — managed by home-manager activation (needs to run as user, not root)
-  # See home/default.nix → home.activation.setWallpaper
+  # Desktop wallpaper — must run AFTER Dock restart (which resets wallpaper)
+  # Runs as root (postActivation) so we use `su` to target the actual user
+  system.activationScripts.postActivation.text = ''
+    sleep 2
+    su - ${username} -c '/usr/bin/osascript -e "tell application \"System Events\" to tell every desktop to set pictures folder to POSIX file \"/Users/${username}/repos/wallpapers\"" 2>/dev/null' || true
+  '';
 
   # Shell
   programs.zsh.enable = true;
