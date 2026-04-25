@@ -79,7 +79,7 @@ rebuild
 
 | Language | Managed by | Notes |
 |----------|-----------|-------|
-| Go, Python, Elixir, Zig, PHP | Nix | Declarative, pinned to nixpkgs |
+| Go, Elm, Python, Elixir, Zig, PHP | Nix | Declarative, pinned to nixpkgs |
 | Java 17, Java 21 | Nix | JDKs + Maven + Gradle + Quarkus CLI |
 | Rust | rustup (binary from Nix) | `rustup` installed by nix, toolchains managed by rustup |
 | Node | mise (from Nix) | Universal version manager (also handles Java, Python, etc.) |
