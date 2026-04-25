@@ -50,7 +50,7 @@
       "docker-desktop"
       "bruno"
       "github"
-      "firefoo"              # Firestore GUI
+      # firefoo (Firestore GUI) — not in Homebrew, install manually from https://firefoo.app
 
       # AI coding tools (managed by Homebrew for fast updates — these ship multiple times/day)
       "chatgpt"
