@@ -8,11 +8,12 @@ Declarative macOS configuration using **nix-darwin** + **home-manager** + **NixV
 
 This is my personal system config. You're welcome to browse, fork, and steal ideas — but **the secrets, SSH configs, and repo manifests are mine**. If you fork this:
 
-1. Delete `secrets/` (those are my age-encrypted SSH keys — useless to you)
+1. Delete `secrets/` (those are my age-encrypted SSH keys and private config — useless to you)
 2. Replace `home/ssh.nix` with your own SSH host config
 3. Replace `home/git.nix` with your own identity
 4. Edit `repos.yml` with your own repos (or delete it)
-5. Edit `hosts/macbook/homebrew.nix` to match your apps
+5. Create your own `repos-private.yml` for private/work repos (gitignored)
+6. Edit `hosts/macbook/homebrew.nix` to match your apps
 
 The bootstrap script gracefully skips SSH decryption and repo cloning if it doesn't find my encrypted keys, so it'll still work for a fork — you just won't get my keys (obviously).
 
@@ -59,8 +60,9 @@ rebuild
 | GUI Apps | nix-homebrew | Homebrew casks + formulas (terminals, browsers, AI tools, etc.) |
 | User Config | home-manager | Shell (zsh), git, SSH, tmux, starship prompt, terminal configs |
 | Editor | NixVim | Neovim with LSP, treesitter, DAP debugging, telescope, etc. |
-| Secrets | age | SSH keys encrypted in repo, decrypted on bootstrap |
-| Repos | repos.yml | Declarative list of git repos cloned to ~/repos/ |
+| Secrets | age | SSH keys + private config encrypted in repo, decrypted on bootstrap |
+| Repos | repos.yml | Public repos cloned to ~/repos/ (private repos in gitignored repos-private.yml) |
+| Fonts | home-manager | Nerd Fonts via nixpkgs + licensed fonts symlinked from private repo |
 
 ### System settings managed by nix-darwin
 
@@ -131,12 +133,12 @@ rebuild
 update   # alias for: nix flake update && rebuild
 ```
 
-### Rotating SSH keys
+### Rotating SSH keys or updating private repos
 
 ```bash
-# After generating new keys in ~/.ssh/:
-./scripts/encrypt-keys.sh   # re-encrypts with your passphrase
-git add secrets/ && git commit -m "rotate SSH keys"
+# After generating new keys or editing repos-private.yml:
+./scripts/encrypt-keys.sh   # re-encrypts everything with your passphrase
+git add secrets/ && git commit -m "rotate secrets"
 git push
 ```
 
@@ -146,12 +148,14 @@ git push
 .
 ├── flake.nix                     # Entry point — all inputs and module wiring
 ├── flake.lock                    # Pinned dependency versions
-├── repos.yml                    # Declarative list of git repos to clone
-├── secrets/                      # Age-encrypted SSH keys (safe to commit)
-│   ├── christory644.age
+├── repos.yml                    # Public repos to clone (committed)
+├── repos-private.yml            # Private/work repos (gitignored, encrypted in secrets/)
+├── secrets/                      # Age-encrypted SSH keys + private config
+│   ├── christory644.age          # Personal SSH key
 │   ├── christory644.pub.age
-│   ├── chris-certifyos.age
-│   └── chris-certifyos.pub.age
+│   ├── chris-certifyos.age       # Work SSH key
+│   ├── chris-certifyos.pub.age
+│   └── repos-private.yml.age     # Private repo manifest
 ├── scripts/
 │   ├── bootstrap.sh              # One-command setup for a fresh Mac
 │   ├── encrypt-keys.sh           # Re-encrypt SSH keys after rotation

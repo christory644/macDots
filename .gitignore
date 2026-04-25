@@ -7,6 +7,11 @@ config/zsh/.zcompdump
 .claude/
 result
 
-# Allow encrypted secrets (.age), but never plain keys
+# Private repo manifest (work repos, licensed content)
+repos-private.yml
+
+# Allow encrypted secrets and age config, but never plain keys
 secrets/*
 !secrets/*.age
+!secrets/age-identity.txt
+!secrets/age-recipient.txt

@@ -36,24 +36,42 @@ if ! command -v nix &>/dev/null; then
   . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 fi
 
-# ── SSH keys (decrypt from repo — needed before cloning other repos) ─
-if [ -f "$DOTS/secrets/christory644.age" ]; then
+# ── Decrypt secrets (SSH keys, private repo manifest) ────────────────
+if [ -f "$DOTS/secrets/age-identity.txt" ]; then
+  AGE_PKG="$(nix build nixpkgs#age --no-link --print-out-paths)"
+  AGE="${AGE_PKG}/bin/age"
+  IDENTITY="$DOTS/secrets/age-identity.txt"
+
+  # Decrypt the age identity first (prompts for passphrase once)
+  if [ ! -f /tmp/age-identity-decrypted ]; then
+    echo "==> Enter passphrase to decrypt secrets (one time only)"
+    $AGE -d -o /tmp/age-identity-decrypted "$IDENTITY"
+  fi
+
+  # Decrypt SSH keys
   if [ ! -f "$HOME/.ssh/christory644" ] || [ ! -f "$HOME/.ssh/chris-certifyos" ]; then
-    echo "==> Decrypting SSH keys (enter the passphrase you used to encrypt them)"
+    echo "==> Decrypting SSH keys..."
     mkdir -p "$HOME/.ssh"
     chmod 700 "$HOME/.ssh"
 
-    AGE="nix run nixpkgs#age --"
-
     for name in christory644 chris-certifyos; do
-      $AGE -d -o "$HOME/.ssh/${name}" "$DOTS/secrets/${name}.age"
+      $AGE -d -i /tmp/age-identity-decrypted -o "$HOME/.ssh/${name}" "$DOTS/secrets/${name}.age"
       chmod 600 "$HOME/.ssh/${name}"
-      $AGE -d -o "$HOME/.ssh/${name}.pub" "$DOTS/secrets/${name}.pub.age"
+      $AGE -d -i /tmp/age-identity-decrypted -o "$HOME/.ssh/${name}.pub" "$DOTS/secrets/${name}.pub.age"
       chmod 644 "$HOME/.ssh/${name}.pub"
     done
 
     echo "==> SSH keys decrypted and installed."
   fi
+
+  # Decrypt private repo manifest
+  if [ -f "$DOTS/secrets/repos-private.yml.age" ] && [ ! -f "$DOTS/repos-private.yml" ]; then
+    echo "==> Decrypting private repo manifest..."
+    $AGE -d -i /tmp/age-identity-decrypted -o "$DOTS/repos-private.yml" "$DOTS/secrets/repos-private.yml.age"
+  fi
+
+  # Clean up decrypted identity
+  rm -f /tmp/age-identity-decrypted
 
   # Switch macDots remote to SSH (now that keys exist)
   CURRENT_REMOTE="$(git -C "$DOTS" remote get-url origin)"

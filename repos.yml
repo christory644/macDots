@@ -1,18 +1,17 @@
 # repos.yml — declarative list of git repos to clone into ~/repos/
 #
-# Run `./scripts/clone-repos.sh` to ensure all listed repos are present.
-# Repos not listed here won't be touched (safe for one-off experiments).
+# This file is committed to the public repo. Only list PUBLIC repos here.
+# Private/work repos go in repos-private.yml (gitignored).
+#
+# Run `./scripts/clone-repos.sh` to clone from both files.
 #
 # Format: directory_name: git_remote_url
 
-# ── Personal ─────────────────────────────────────────────────────────
+# ── Personal (public) ───────────────────────────────────────────────
 macDots: git@github.com-christory644:christory644/macDots.git
 wallpapers: git@github.com-christory644:christory644/wallpapers.git
-fonts: git@github.com-christory644:christory644/fonts.git
 dots: git@github.com-christory644:christory644/dots.git
 Nixos-config: git@github.com-christory644:christory644/Nixos-config.git
-
-# Personal projects
 hearth: git@github.com-christory644:christory644/hearth.git
 mycelium: git@github.com-christory644:christory644/mycelium.git
 veil: git@github.com-christory644:christory644/veil.git
@@ -27,18 +26,3 @@ open_graph_previewer_2_claude: git@github.com-christory644:christory644/og_previ
 git-flair: git@github.com-christory644:christory644/git-flair.git
 brightWake: git@github.com-christory644:christory644/brightWake.git
 half-ass-trophy: git@github.com-christory644:christory644/half-ass-trophy.git
-
-# ── CertifyOS (work) ────────────────────────────────────────────────
-certifyos: git@github.com-chris-certifyos:CertifyOS/certifyos.git
-frontend: git@github.com-chris-certifyos:CertifyOS/frontend.git
-client-web-app: git@github.com-chris-certifyos:CertifyOS/client-web-app.git
-api-layer: git@github.com-chris-certifyos:CertifyOS/api-layer.git
-agent-layer: git@github.com-chris-certifyos:CertifyOS/agent-layer.git
-core-data-access-layer: git@github.com-chris-certifyos:CertifyOS/core-data-access-layer.git
-dal-mdm-cleansing-layer: git@github.com-chris-certifyos:CertifyOS/dal-mdm-cleansing-layer.git
-dal-mdm-matching-layer: git@github.com-chris-certifyos:CertifyOS/dal-mdm-matching-layer.git
-dal-mdm-survivorship-layer: git@github.com-chris-certifyos:CertifyOS/dal-mdm-survivorship-layer.git
-document-intelligence-api: git@github.com-chris-certifyos:CertifyOS/document-intelligence-api.git
-mcp-server-local: git@github.com-chris-certifyos:CertifyOS/mcp-server-local.git
-cf-provider-flags: git@github.com-chris-certifyos:CertifyOS/cf-provider-flags.git
-quarkus-example: git@github.com-chris-certifyos:CertifyOS/quarkus-base.git
