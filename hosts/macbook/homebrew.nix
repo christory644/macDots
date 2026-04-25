@@ -27,6 +27,7 @@
       "pi-coding-agent"   # minimal AI coding agent (supports Ollama, Claude, OpenAI, etc.)
       "nvm"               # Node version manager — not in nixpkgs (migrate to mise when ready)
       "gemini-cli"        # Google Gemini CLI coding agent (fast updates)
+      "mlx-lm"            # Apple MLX LLM toolkit — fine-tuning + inference on Apple Silicon
     ];
 
     # GUI applications (casks) — Nix can't handle macOS .app bundles well
@@ -40,6 +41,7 @@
       # Browsers
       "arc"
       "firefox"
+      "google-chrome"
 
       # Development
       "cursor"
@@ -47,8 +49,11 @@
       "docker-desktop"
       "bruno"
       "github"
+      "firefoo"              # Firestore GUI
 
       # AI coding tools (managed by Homebrew for fast updates — these ship multiple times/day)
+      "chatgpt"
+      "claude"
       "claude-code"
       "codex"
       "coderabbit"
@@ -60,13 +65,19 @@
       "obsidian"
       "raycast"
       "maccy"
+      "whimsical"
+      "google-drive"
       "zoom"
 
       # Communication
       "discord"
+      "slack"
 
       # Media
       "spotify"
+
+      # Hardware
+      "insta360-link-controller"
     ];
 
   };

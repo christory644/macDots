@@ -21,9 +21,11 @@
     fd
     fzf
     jq
+    yq             # jq but for YAML/TOML/XML
     ripgrep
     tldr
     tree
+    watch          # run a command repeatedly and watch output
     wget
     zoxide
 
@@ -38,7 +40,10 @@
     httpie
     gh
     lazydocker     # TUI for Docker containers/images/volumes
+    dive           # explore Docker image layers
     glow           # terminal markdown renderer
+    shellcheck     # shell script linter
+    shfmt          # shell script formatter
 
     # Shell
     starship
@@ -61,13 +66,17 @@
     dolt           # version-controlled SQL DB (Gastown dependency)
     # Node managed by NVM via Homebrew — not here
 
+    # Language package managers
+    phpPackages.composer  # PHP package manager
+
     # Java
     jdk17
     jdk21
     maven
     quarkus        # Java framework CLI
 
-    # Infrastructure
+    # Cloud & infrastructure
+    google-cloud-sdk
     terraform
 
     # Static sites & content

@@ -47,10 +47,11 @@
       KEYTIMEOUT = "1";
 
       # Ollama — tuned for M3 18GB (bump NUM_PARALLEL and MAX_LOADED_MODELS on bigger machine)
-      OLLAMA_FLASH_ATTENTION = "1"; # faster inference on Apple Silicon
+      OLLAMA_USE_MLX = "1";          # use Apple MLX backend (unified memory, no CPU/GPU copy overhead)
+      OLLAMA_FLASH_ATTENTION = "1";  # faster inference on Apple Silicon
       OLLAMA_KV_CACHE_TYPE = "q8_0"; # halves KV cache memory
-      OLLAMA_KEEP_ALIVE = "10m"; # shorter keepalive to free RAM faster
-      OLLAMA_NUM_PARALLEL = "1"; # single request at a time (RAM limited)
+      OLLAMA_KEEP_ALIVE = "10m";     # shorter keepalive to free RAM faster
+      OLLAMA_NUM_PARALLEL = "1";     # single request at a time (RAM limited)
       OLLAMA_MAX_LOADED_MODELS = "1"; # only one model loaded at a time
     };
 
@@ -238,20 +239,11 @@
         bindkey -M visual S add-surround
 
         # -- Tool integrations --
-        # Google Cloud SDK
-        [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ] && source "$HOME/google-cloud-sdk/path.zsh.inc"
-        [ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ] && source "$HOME/google-cloud-sdk/completion.zsh.inc"
-
         # NVM (if still needed alongside Nix nodejs)
         [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && source "/opt/homebrew/opt/nvm/nvm.sh"
 
-        # JEnv
-        if command -v jenv &> /dev/null; then
-          eval "$(jenv init -)"
-        fi
-
         # PATH additions
-        export PATH="$HOME/go/bin:$HOME/.jenv/bin:$PATH"
+        export PATH="$HOME/go/bin:$PATH"
         export PATH="$PATH:/Applications/Obsidian.app/Contents/MacOS"
 
         # Yazi: cd to directory when exiting with q (wrapper function)
