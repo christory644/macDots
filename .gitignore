@@ -6,3 +6,7 @@ config/zsh/.zcompdump
 .java-version
 .claude/
 result
+
+# Allow encrypted secrets (.age), but never plain keys
+secrets/*
+!secrets/*.age
