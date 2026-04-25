@@ -84,7 +84,8 @@
     zola           # static site generator (Rust)
 
     # Language formatters (used by conform.nvim)
-    elmPackages.elm-format   # Elm formatter
+    # elmPackages.elm-format — DISABLED: pulls in GHC which fails to build from source on macOS
+    #                          Install via: brew install elm-format (if needed)
     # Java: formatted by Spotless (palantir style) via Gradle — no standalone formatter needed
 
     # AI coding agents (for Gastown multi-agent orchestration)
