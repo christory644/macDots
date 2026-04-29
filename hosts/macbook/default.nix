@@ -54,28 +54,10 @@
     mise           # universal version manager (node, java, python, etc.)
     sesh           # smart tmux session manager
 
-    # Languages & runtimes
-    go
+    # Languages & runtimes — managed by mise (see ~/.config/mise/config.toml)
+    # Per-project versions pinned via .mise.toml in each repo
     # Elm: installed via Homebrew (GHC fails to build from source on macOS with Lix)
-    elixir
-    zig
-    php
-    python3
-    rustup         # Rust toolchain manager (manages rustc, cargo, etc.)
-    bun            # fast JS runtime (used for oh-my-pi)
-    yarn           # JS package manager
     dolt           # version-controlled SQL DB (Gastown dependency)
-    # Node managed by NVM via Homebrew — not here
-
-    # Language package managers
-    phpPackages.composer  # PHP package manager
-
-    # Java
-    jdk17
-    jdk21
-    maven
-    gradle
-    quarkus        # Java framework CLI
 
     # Cloud & infrastructure
     google-cloud-sdk
@@ -93,6 +75,10 @@
                     # Install via: pipx install aider-chat (when needed on bigger machine)
     opencode       # AI coding agent (supports any OpenAI-compatible endpoint)
     ollama         # local LLM server (llama, codellama, mistral, etc.)
+
+    # Media & transcription (used by second_brain YouTube ingestion)
+    yt-dlp         # YouTube + many other sites: metadata + caption + audio fetcher
+    whisper-cpp    # OpenAI Whisper inference in C++ (Metal-accelerated on Apple Silicon)
 
     # File management & search
     yazi           # terminal file manager (Rust, blazing fast)
