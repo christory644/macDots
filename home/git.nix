@@ -31,6 +31,8 @@
       "node_modules/"
       "__pycache__/"
       ".direnv/"
+      ".mise.toml"
+      ".mise.local.toml"
       "*.class"
       "target/"
       ".nix-*"
