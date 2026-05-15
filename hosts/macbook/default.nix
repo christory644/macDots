@@ -79,6 +79,7 @@
     # Media & transcription (used by second_brain YouTube ingestion)
     yt-dlp         # YouTube + many other sites: metadata + caption + audio fetcher
     whisper-cpp    # OpenAI Whisper inference in C++ (Metal-accelerated on Apple Silicon)
+    ffmpeg         # video decode + scene-change keyframe extraction for /process-youtube visual layer
 
     # File management & search
     yazi           # terminal file manager (Rust, blazing fast)

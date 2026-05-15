@@ -56,7 +56,8 @@
       "chatgpt"
       "claude"
       "claude-code"
-      "codex"
+      "codex"           # Codex CLI binary (/opt/homebrew/bin/codex)
+      "codex-app"       # Codex Desktop app (separate from the CLI; launched 2026-02)
       "coderabbit"
 
       # Window management

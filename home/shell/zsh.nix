@@ -114,6 +114,12 @@
       claude-work = "CLAUDE_CONFIG_DIR=~/.claude-work command claude --enable-auto-mode --allow-dangerously-skip-permissions";
       claude = "claude-work";
 
+      # codex CLI — separate personal/work configs (CODEX_HOME mirrors CLAUDE_CONFIG_DIR)
+      # Desktop app (codex-app cask) uses ~/.codex by default — log in once with work account.
+      codex-personal = "CODEX_HOME=~/.codex-personal command codex";
+      codex-work = "CODEX_HOME=~/.codex-work command codex";
+      codex = "codex-work";
+
       # gastown and gas city — functions are in initContent (need tmux logic)
       gt = "gt-work";
       gc = "gc-work";
@@ -271,10 +277,10 @@
           fi
         }
 
-        function gt-work()     { _ensure_tmux gt-work GT_TOWN_ROOT=~/.gt-work CLAUDE_CONFIG_DIR=~/.claude-work command gt "$@"; }
-        function gt-personal() { _ensure_tmux gt-personal GT_TOWN_ROOT=~/.gt-personal CLAUDE_CONFIG_DIR=~/.claude-personal command gt "$@"; }
-        function gc-work()     { _ensure_tmux gc-work CLAUDE_CONFIG_DIR=~/.claude-work command gc --city ~/.gc-work "$@"; }
-        function gc-personal() { _ensure_tmux gc-personal CLAUDE_CONFIG_DIR=~/.claude-personal command gc --city ~/.gc-personal "$@"; }
+        function gt-work()     { _ensure_tmux gt-work GT_TOWN_ROOT=~/.gt-work CLAUDE_CONFIG_DIR=~/.claude-work CODEX_HOME=~/.codex-work command gt "$@"; }
+        function gt-personal() { _ensure_tmux gt-personal GT_TOWN_ROOT=~/.gt-personal CLAUDE_CONFIG_DIR=~/.claude-personal CODEX_HOME=~/.codex-personal command gt "$@"; }
+        function gc-work()     { _ensure_tmux gc-work CLAUDE_CONFIG_DIR=~/.claude-work CODEX_HOME=~/.codex-work command gc --city ~/.gc-work "$@"; }
+        function gc-personal() { _ensure_tmux gc-personal CLAUDE_CONFIG_DIR=~/.claude-personal CODEX_HOME=~/.codex-personal command gc --city ~/.gc-personal "$@"; }
 
         # Ensure Nix paths take priority over Homebrew (brew shellenv runs in /etc/zshrc)
         export PATH="$HOME/.nix-profile/bin:/etc/profiles/per-user/$USER/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:$PATH"
