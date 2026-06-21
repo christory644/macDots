@@ -18,6 +18,7 @@
     ./supacode.nix
     ./second-brain-autocommit.nix
     ./mise.nix
+    ./syncthing.nix
   ];
 
   home = {
