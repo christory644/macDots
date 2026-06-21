@@ -15,6 +15,9 @@
     ./nvim/default.nix
     ./vscode.nix
     ./ollama.nix
+    ./supacode.nix
+    ./second-brain-autocommit.nix
+    ./mise.nix
   ];
 
   home = {

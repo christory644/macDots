@@ -16,11 +16,13 @@
         hostname = "github.com";
         user = "git";
         identityFile = "~/.ssh/christory644";
+        identitiesOnly = true;
       };
       "github.com-chris-certifyos" = {
         hostname = "github.com";
         user = "git";
         identityFile = "~/.ssh/chris-certifyos";
+        identitiesOnly = true;
       };
     };
   };
