@@ -7,7 +7,13 @@
 
     onActivation = {
       autoUpdate = true;
-      upgrade = true;
+      # upgrade = false on purpose: don't upgrade installed brews/casks on every
+      # system rebuild. With `upgrade = true`, a single flaky formula upgrade
+      # (e.g. a transient bad mlx-lm revision) aborts the ENTIRE darwin-rebuild
+      # before any nix changes activate. The AI casks (claude, codex, cursor, …)
+      # self-update internally anyway. Run `brew upgrade` / `brew upgrade --cask`
+      # manually when you actually want to bump versions.
+      upgrade = false;
       # "zap" removes casks not listed here; "uninstall" removes formulas not listed
       # Using "none" for safety during migration — switch to "zap" once stable
       cleanup = "none";
@@ -55,10 +61,11 @@
       # AI coding tools (managed by Homebrew for fast updates — these ship multiple times/day)
       "chatgpt"
       "claude"
-      "claude-code"
+      "claude-code@latest"
       "codex"           # Codex CLI binary (/opt/homebrew/bin/codex)
       "codex-app"       # Codex Desktop app (separate from the CLI; launched 2026-02)
       "coderabbit"
+      "supacode"        # Native terminal coding agents command center (.app, requires macOS >= 26)
 
       # Window management
       "aerospace"

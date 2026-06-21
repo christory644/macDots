@@ -13,6 +13,25 @@
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
     enableCompletion = true;
+
+    # Completions: build the completion system in memory, never cache a dump file.
+    #
+    # nix-darwin puts every package's completions on $fpath (~3700 functions
+    # across the default/system/per-user/user profiles). zsh's `compdump` — which
+    # rewrites ~/.zcompdump — scales terribly with an fpath that large:
+    # regenerating the dump is CPU-bound and takes *minutes* here (measured
+    # >6.5 min). The stock `compinit` rebuilds that dump inline whenever it looks
+    # stale, so any cold shell with a stale/missing dump prints the login banner
+    # then hangs with no prompt until the rebuild finishes. libghostty terminals
+    # (supacode, cmux) hit this constantly because they cold-launch shells whose
+    # dump is frequently stale, and an interrupted rebuild leaves it stale for the
+    # next shell — hence the intermittent "new pane never loads" hang.
+    #
+    # The dump is only a startup optimization. The fpath *scan* is fast (~0.2s);
+    # only writing the dump is slow. So we skip the dump entirely (`-D`,
+    # in-memory init) — identical completions, ~0.2s per shell, and it can never
+    # hang. `-i` keeps an insecure fpath dir from ever blocking on a prompt.
+    completionInit = "autoload -Uz compinit && compinit -i -D";
     historySubstringSearch = {
       enable = true;
       # Up/Down arrows search history matching current input
