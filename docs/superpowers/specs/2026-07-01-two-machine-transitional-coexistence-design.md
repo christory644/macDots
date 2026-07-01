@@ -91,24 +91,37 @@ rebuild = "nh darwin switch ~/repos/macDots -H ${hostname}";
 `update` (line 167) gets the same treatment. `home/default.nix` passes `hostname`
 into the shell module (it is already in `extraSpecialArgs`).
 
-### 4. Disable Universal Control declaratively (hosts/macbook/default.nix)
+### 4. Disable Universal Control declaratively (home/, via home.activation)
 
-Applies to both hosts via the shared module. Chosen over the manual toggle for
-reproducibility.
+**Empirically confirmed on 2026-07-01** (old Mac): Universal Control is a **ByHost**
+preference — `~/Library/Preferences/ByHost/com.apple.universalcontrol.<UUID>.plist` —
+whose state lives in an opaque `Configuration` blob. The global domain
+`com.apple.universalcontrol` does not exist, so nix-darwin's `system.defaults` /
+`CustomUserPreferences` (which write the *global* domain) **cannot reach it** — an
+earlier draft of this spec was wrong on that point.
+
+The working mechanism is a `-currentHost` (ByHost) write of an undocumented
+`Disable` key. Verified: after `defaults -currentHost write
+com.apple.universalcontrol Disable -bool true` + a ControlCenter restart, the cursor
+stopped crossing between the two Macs — **no logout/login needed**.
+
+Because the write must target the *per-user* ByHost domain, it belongs in a
+**home-manager activation** step (home-manager activation runs as the user), not a
+nix-darwin `system.*` option:
 
 ```nix
-system.defaults.CustomUserPreferences."com.apple.universalcontrol" = {
-  Disable            = true;
-  DisableMagnetEdges = true;
-  DisableCrossDrag   = true;
-};
+# in a home module, applied to both hosts via the shared home/default.nix
+home.activation.disableUniversalControl =
+  lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    run /usr/bin/defaults -currentHost write com.apple.universalcontrol Disable -bool true
+  '';
 ```
 
-**Caveat:** `com.apple.universalcontrol` is not an officially documented key. It may
-require a logout/login (or `killall` of the relevant agent) to take effect. If it
-doesn't stick, fall back to System Settings → Displays → Advanced → uncheck "Allow
-your pointer and keyboard to move between any nearby Mac or iPad." This is safe to
-keep permanently on the keeper.
+**Caveat:** the `Disable` key is undocumented; it is honored on this macOS (26 /
+Tahoe) but could change. Manual fallback if a future OS ignores it: System Settings
+→ Displays → Advanced → uncheck "Allow your pointer and keyboard to move between any
+nearby Mac or iPad." Safe to keep permanently on the keeper. Revert the test write
+with `defaults -currentHost delete com.apple.universalcontrol Disable`.
 
 ## Rollout
 
@@ -153,4 +166,4 @@ keep permanently on the keeper.
   `ComputerName` show the expected value; `whoami` matches the entry's username;
   `.local` names no longer collide.
 - Universal Control: swapping trackpads no longer moves the other machine's cursor
-  (after re-login if needed).
+  (confirmed working on the old Mac without re-login on 2026-07-01).
