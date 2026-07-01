@@ -20,6 +20,7 @@
     ./second-brain-autocommit.nix
     ./mise.nix
     ./syncthing.nix
+    ./universal-control.nix
   ];
 
   home = {
