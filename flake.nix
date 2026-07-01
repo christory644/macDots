@@ -29,12 +29,12 @@
 
   outputs = { self, nixpkgs, nix-darwin, home-manager, nixvim, nix-homebrew, nix-vscode-extensions, ... }:
     let
-      username = "christory";
-      hostname = "macbook";
-    in
-    {
-      darwinConfigurations.${hostname} = nix-darwin.lib.darwinSystem {
-        specialArgs = { inherit username nixvim nix-vscode-extensions; };
+      # Transitional two-machine setup — see
+      # docs/superpowers/specs/2026-07-01-two-machine-transitional-coexistence-design.md
+      # Both machines build from one flake; only hostname + username differ.
+      # TEARDOWN: delete the `macbook` (old) entry once that Mac is wiped.
+      mkHost = { hostname, username }: nix-darwin.lib.darwinSystem {
+        specialArgs = { inherit username hostname nixvim nix-vscode-extensions; };
         modules = [
           # Overlay: fix packages that fail to build from source on macOS
           {
@@ -66,11 +66,26 @@
               useGlobalPkgs = true;
               useUserPackages = true;
               backupFileExtension = "hm-bak";
-              extraSpecialArgs = { inherit username nixvim nix-vscode-extensions; };
+              extraSpecialArgs = { inherit username hostname nixvim nix-vscode-extensions; };
               users.${username} = import ./home/default.nix;
             };
           }
         ];
+      };
+    in
+    {
+      darwinConfigurations = {
+        # OLD machine — wiped after migration; delete this entry at teardown.
+        macbook = mkHost {
+          hostname = "macbook";
+          username = "christopherstory";
+        };
+
+        # NEW machine — the keeper / canonical config.
+        christoryCertifyOSMacbook = mkHost {
+          hostname = "christoryCertifyOSMacbook";
+          username = "christory";
+        };
       };
     };
 }
