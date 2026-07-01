@@ -106,13 +106,22 @@ in
     if [ -f "$SETTINGS" ]; then
       # Deep-merge (recursive `*`): declared keys win, app-managed keys kept.
       if ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$SETTINGS" ${desired} > "$SETTINGS.hm-tmp" 2>/dev/null; then
-        run mv "$SETTINGS.hm-tmp" "$SETTINGS"
+        # -f: overwrite without the interactive "override mode 0444?" prompt.
+        # The live file can be read-only (a prior first-run `cp` from the 0444
+        # nix store left it that way), and BSD mv would otherwise block
+        # activation forever waiting on stdin. The result inherits the tmp
+        # file's writable mode, so this also self-heals the permissions.
+        run mv -f "$SETTINGS.hm-tmp" "$SETTINGS"
       else
         verboseEcho "supacode: settings.json unparseable, leaving it untouched"
         run rm -f "$SETTINGS.hm-tmp"
       fi
     else
+      # Store sources are 0444; copy then make the live file writable so
+      # Supacode can persist app-managed state and the next merge's `mv`
+      # isn't overwriting a read-only file.
       run cp ${desired} "$SETTINGS"
+      run chmod u+w "$SETTINGS"
     fi
   '';
 }
