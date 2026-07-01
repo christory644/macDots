@@ -48,6 +48,23 @@ let
     .credentials.json
   '';
 
+  # repos/ carries ~150 git working trees. Keep .git + source; drop everything
+  # rebuildable so Syncthing isn't indexing/transferring hundreds of thousands of
+  # node_modules files. (~46G on disk drops to a fraction with these excluded.)
+  reposIgnore = ''
+    node_modules
+    target
+    dist
+    build
+    .next
+    .venv
+    __pycache__
+    .pytest_cache
+    result
+    *.log
+    .DS_Store
+  '';
+
   folder = sub: {
     path = "${home}/${sub}";
     devices = [ ]; # add "studio" here once the Mac Studio is paired
@@ -62,12 +79,26 @@ in
         # studio.id = "XXXXXXX-XXXXXXX-...";  # from the Studio's Syncthing UI
       };
       folders = {
+        # ── Permanent: coding-agent continuity (memories + conversations) ──
         "claude" = folder ".claude";
         "claude-personal" = folder ".claude-personal";
         "claude-work" = folder ".claude-work";
         "codex" = folder ".codex";
         "codex-personal" = folder ".codex-personal";
         "codex-work" = folder ".codex-work";
+
+        # ── Migration seed: one-time transfer to the new MacBook ───────────
+        # This machine is being retired, so these carry non-reproducible user
+        # data over Syncthing once, then can be removed in a single commit.
+        # (Everything ephemeral/rebuildable is deliberately NOT here — it comes
+        # fresh from bootstrap: toolchains, caches, node_modules, model downloads.)
+        "downloads" = folder "Downloads";
+        "documents" = folder "Documents";
+        "pictures" = folder "Pictures";
+        "movies" = folder "Movies";
+        "music" = folder "Music";
+        "screenshots" = folder "Screenshots"; # macOS screencapture location
+        "repos" = folder "repos";
       };
     };
   };
@@ -79,5 +110,6 @@ in
     ".codex/.stignore".text = codexIgnore;
     ".codex-personal/.stignore".text = codexIgnore;
     ".codex-work/.stignore".text = codexIgnore;
+    "repos/.stignore".text = reposIgnore;
   };
 }

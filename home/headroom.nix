@@ -64,7 +64,12 @@ let
 in
 {
   launchd.agents.headroom = {
-    enable = true;
+    # OFF until the venv is installed and the proxy is proven. The claude-personal
+    # alias (home/shell/zsh.nix) is gated to run direct in the meantime; enabling
+    # this agent without the venv just loops the retry script every 5m (KeepAlive).
+    # To trial Headroom: install the venv, flip this to true, restore the proxy env
+    # vars on claude-personal, then rebuild.
+    enable = false;
     config = {
       Label = "ai.headroomlabs.proxy";
       ProgramArguments = [ "${runProxy}" ];

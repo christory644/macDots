@@ -15,6 +15,7 @@
     ./nvim/default.nix
     ./vscode.nix
     ./ollama.nix
+    ./headroom.nix
     ./supacode.nix
     ./second-brain-autocommit.nix
     ./mise.nix

@@ -128,7 +128,18 @@
       # shell
       resource_zsh = "source $HOME/.zshrc";
 
-      # claude code — separate personal/work configs
+      # claude code — separate personal/work configs. Both run direct to Anthropic.
+      #
+      # HEADROOM PROXY (draft, currently OFF): personal was meant to route through the
+      # local Headroom compression proxy (see home/headroom.nix), but the proxy venv
+      # isn't installed yet, so routing personal through it just breaks personal Claude.
+      # It's gated off until the proxy is installed AND proven. To re-enable, install the
+      # venv (see home/headroom.nix), then prepend these two env vars to claude-personal:
+      #   ANTHROPIC_BASE_URL=http://localhost:8787   -> requests hit the proxy, not api.anthropic.com
+      #   ANTHROPIC_MODEL='claude-opus-4-8[1m]'      -> REQUIRED behind a custom base URL: Claude
+      #     Code drops the context-1m beta header through a proxy and silently caps at 200k, so
+      #     pin the 1M-tagged model to keep the full window (forces opus as the personal default;
+      #     switching models mid-session via /model loses the [1m] tag).
       claude-personal = "CLAUDE_CONFIG_DIR=~/.claude-personal command claude --enable-auto-mode --allow-dangerously-skip-permissions";
       claude-work = "CLAUDE_CONFIG_DIR=~/.claude-work command claude --enable-auto-mode --allow-dangerously-skip-permissions";
       claude = "claude-work";
