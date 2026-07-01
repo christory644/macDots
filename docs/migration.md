@@ -97,3 +97,55 @@ new machine to `macbook` on first switch, so there's no per-machine config to to
 11. Optional cleanup commit: delete the "migration seed" folder block from
     `home/syncthing.nix` (the old Mac is gone), leaving only agent-state continuity
     for a future third machine (e.g. the Mac Studio).
+
+---
+
+## Troubleshooting: bootstrap died partway
+
+`bootstrap.sh` is idempotent — **re-running it is always safe**, and the fastest
+recovery is usually to open a **fresh terminal** (so Nix is on `PATH` via
+`/etc/zshrc`) and run the one-liner again. It skips whatever already completed.
+
+If a fresh run doesn't sort it, work through these by symptom:
+
+- **`nix: command not found` in a fresh shell** — the daemon profile isn't being
+  sourced. Source it manually, then re-run:
+  ```bash
+  . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+  ```
+
+- **Nix installed, but nothing is activated** (`nh`/`rebuild` missing, shell
+  unchanged, even after reboot) — the `darwin-rebuild switch` never completed, so
+  no generation was activated. `/run/current-system` won't exist. Finish it by
+  hand (needs `sudo` — first-run activation writes `/etc`, `/run`, launchd):
+  ```bash
+  cd ~/repos/macDots
+  nix build ".#darwinConfigurations.macbook.system"
+  sudo ./result/sw/bin/darwin-rebuild switch --flake ".#macbook"
+  ```
+
+- **Switch aborts on existing `/etc` files** (`… would be clobbered by
+  nix-darwin`) — move Apple's defaults aside, then re-run the switch:
+  ```bash
+  sudo mv /etc/zshrc /etc/zshrc.before-nix-darwin
+  sudo mv /etc/bashrc /etc/bashrc.before-nix-darwin
+  sudo mv /etc/zprofile /etc/zprofile.before-nix-darwin
+  ```
+
+- **System came up but shell aliases / `cmux` / tmux config are missing** —
+  home-manager's user activation runs **after** Homebrew during the switch, so a
+  failing `brew bundle` (one incompatible cask is enough) aborts the run before
+  home-manager writes `~/.zshrc`. Confirm with `ls -la ~/.zshrc` — it should be a
+  symlink into `/nix/store`; if it's a plain file or missing, home-manager didn't
+  run. Fix the brew failure (below) and re-switch.
+
+- **A Homebrew cask won't install on this macOS** (e.g. `aerospace` on a newer
+  OS) — remove it from `hosts/macbook/homebrew.nix` `casks` and re-switch. Casks
+  listed *after* the failing one also get skipped, so they'll install on the
+  retry. `aerospace` is already handled: it's installed via nixpkgs
+  (`programs.aerospace` in `home/default.nix`) instead of the cask.
+
+- **Aerospace runs but won't manage windows** — grant it Accessibility:
+  **System Settings → Privacy & Security → Accessibility → enable AeroSpace.app**.
+  Because Nix ties the app to a store path, re-grant this after any
+  `nix flake update` that bumps the aerospace version.

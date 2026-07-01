@@ -15,9 +15,14 @@ echo "==> macDots bootstrap"
 # ── Xcode Command Line Tools (git, clang, etc.) ─────────────────────
 if ! xcode-select -p &>/dev/null; then
   echo "==> Installing Xcode Command Line Tools..."
-  xcode-select --install
-  echo "    Press any key after the installation finishes."
-  read -r -n 1
+  # Opens Apple's GUI installer. Don't wait on a keypress: under `curl … | bash`
+  # stdin is the script itself, so `read` never sees the keyboard. Poll instead.
+  xcode-select --install || true
+  echo "    Waiting for Xcode Command Line Tools to finish installing..."
+  until xcode-select -p &>/dev/null; do
+    sleep 5
+  done
+  echo "    Xcode Command Line Tools installed."
 fi
 
 # ── Clone macDots (HTTPS — no SSH keys needed) ───────────────────────
@@ -31,10 +36,26 @@ fi
 if ! command -v nix &>/dev/null; then
   echo "==> Installing Nix via Lix (recommended by nix-darwin)..."
   curl -sSf -L https://install.lix.systems/lix | sh -s -- install
-  # shellcheck disable=SC1091
-  . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh 2>/dev/null \
-    || . /nix/var/nix/profiles/default/etc/profile.d/nix.sh 2>/dev/null \
-    || true
+fi
+
+# Put nix on PATH for THIS shell — unconditionally, not just after a fresh
+# install. `curl … | bash` is a non-interactive shell that never sources
+# /etc/zshrc, so on a re-run (nix already installed) it still won't be on
+# PATH until we source the daemon profile here.
+# shellcheck disable=SC1091
+. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh 2>/dev/null \
+  || . /nix/var/nix/profiles/default/etc/profile.d/nix.sh 2>/dev/null \
+  || true
+
+# Enable flakes process-wide so every `nix` call below works regardless of
+# the machine's default nix.conf (a fresh install has none yet).
+export NIX_CONFIG="extra-experimental-features = nix-command flakes"
+
+if ! command -v nix &>/dev/null; then
+  echo "!! Nix is installed but not on PATH in this shell." >&2
+  echo "   Open a new terminal and re-run this script, or first run:" >&2
+  echo "     . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" >&2
+  exit 1
 fi
 
 # ── Decrypt secrets (SSH keys, private repo manifest) ────────────────
@@ -86,10 +107,13 @@ fi
 
 # ── First nix-darwin build ───────────────────────────────────────────
 echo "==> Building nix-darwin configuration..."
-nix build "$DOTS#darwinConfigurations.$HOSTNAME.system" --extra-experimental-features "nix-command flakes"
+nix build "$DOTS#darwinConfigurations.$HOSTNAME.system"
 
 echo "==> Activating nix-darwin (first run)..."
-"$DOTS/result/sw/bin/darwin-rebuild" switch --flake "$DOTS#$HOSTNAME"
+# First-run activation writes /etc, /run/current-system and loads launchd
+# daemons — it needs root. Without sudo the switch fails on permissions and
+# home-manager user activation (shell aliases, tmux/cmux, etc.) never runs.
+sudo "$DOTS/result/sw/bin/darwin-rebuild" switch --flake "$DOTS#$HOSTNAME"
 
 # ── Rust toolchain (rustup is installed by nix, but needs initial setup) ──
 if ! command -v rustc &>/dev/null; then

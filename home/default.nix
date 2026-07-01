@@ -56,8 +56,19 @@
     '';
   };
 
-  # Aerospace config (window manager)
-  xdg.configFile."aerospace/aerospace.toml".source = ./aerospace.toml;
+  # Aerospace window manager — installed via nixpkgs (pkgs.aerospace) rather than
+  # the Homebrew cask, which fails to install on this macOS. Same 0.20.3-Beta
+  # build either way. The module manages the start-at-login launchd agent and
+  # writes ~/.config/aerospace/aerospace.toml from our existing TOML (parsed with
+  # fromTOML), so the config is reused verbatim — no rewrite.
+  # NOTE: macOS ties Accessibility permission to the binary path, which changes
+  # when aerospace's version bumps. After a `nix flake update` that moves
+  # aerospace, re-grant Accessibility to AeroSpace.app in System Settings.
+  programs.aerospace = {
+    enable = true;
+    launchd.enable = true;
+    settings = builtins.fromTOML (builtins.readFile ./aerospace.toml);
+  };
 
   # Bat custom theme (only needed for themes not built into bat)
   xdg.configFile."bat/themes/night-owl.tmTheme".source = ./bat/themes/night-owl.tmTheme;

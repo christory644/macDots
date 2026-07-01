@@ -68,7 +68,12 @@
       "supacode"        # Native terminal coding agents command center (.app, requires macOS >= 26)
 
       # Window management
-      "aerospace"
+      # aerospace — cask fails to install on newer macOS (aborts `brew bundle`,
+      # which in turn aborts the whole darwin-rebuild BEFORE home-manager user
+      # activation runs — no shell aliases/config get written). Re-enable once
+      # the cask supports the target OS, or install manually:
+      #   brew install --cask aerospace
+      # "aerospace"
 
       # Productivity
       "obsidian"
