@@ -3,6 +3,7 @@
   lib,
   config,
   theme,
+  hostname,
   ...
 }:
 
@@ -161,10 +162,10 @@
       chat-logs = "docker compose -f ~/repos/macDots/docker/docker-compose.yml logs -f";
 
       # nix-darwin rebuild (nh gives colorized diffs + better progress)
-      rebuild = "nh darwin switch ~/repos/macDots -H macbook";
+      rebuild = "nh darwin switch ~/repos/macDots -H ${hostname}";
 
       # update all flake inputs (nixpkgs, home-manager, nixvim, etc.) then rebuild
-      update = "nix flake update --flake ~/repos/macDots && nh darwin switch ~/repos/macDots -H macbook";
+      update = "nix flake update --flake ~/repos/macDots && nh darwin switch ~/repos/macDots -H ${hostname}";
 
       # system info (run manually, not on startup)
       neofetch = "fastfetch";
