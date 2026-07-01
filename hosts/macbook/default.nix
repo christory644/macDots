@@ -1,4 +1,4 @@
-{ pkgs, username, ... }:
+{ pkgs, username, hostname, ... }:
 
 {
   # Nix settings
@@ -194,7 +194,9 @@
   };
 
   # Local service hostnames (appended to /etc/hosts)
-  networking.hostName = "macbook";
+  networking.hostName = hostname;
+  networking.localHostName = hostname;   # Bonjour .local name
+  networking.computerName = hostname;    # friendly name in Sharing/Finder
   environment.etc."hosts".text = ''
     127.0.0.1       localhost
     255.255.255.255 broadcasthost
