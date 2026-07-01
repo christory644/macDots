@@ -29,7 +29,7 @@
 
   outputs = { self, nixpkgs, nix-darwin, home-manager, nixvim, nix-homebrew, nix-vscode-extensions, ... }:
     let
-      username = "christopherstory";
+      username = "christory";
       hostname = "macbook";
     in
     {
