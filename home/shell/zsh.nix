@@ -143,7 +143,10 @@
       #     switching models mid-session via /model loses the [1m] tag).
       claude-personal = "CLAUDE_CONFIG_DIR=~/.claude-personal command claude --enable-auto-mode --allow-dangerously-skip-permissions";
       claude-work = "CLAUDE_CONFIG_DIR=~/.claude-work command claude --enable-auto-mode --allow-dangerously-skip-permissions";
-      claude = "claude-work";
+      # claude-work is the platform (API) account; claude-work-sub is the work
+      # subscription account. The bare `claude` defaults to the subscription.
+      claude-work-sub = "CLAUDE_CONFIG_DIR=~/.claude-work-sub command claude --enable-auto-mode --allow-dangerously-skip-permissions";
+      claude = "claude-work-sub";
 
       # codex CLI — separate personal/work configs (CODEX_HOME mirrors CLAUDE_CONFIG_DIR)
       # Desktop app (codex-app cask) uses ~/.codex by default — log in once with work account.

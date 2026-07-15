@@ -83,6 +83,7 @@ in
         "claude" = folder ".claude";
         "claude-personal" = folder ".claude-personal";
         "claude-work" = folder ".claude-work";
+        "claude-work-sub" = folder ".claude-work-sub";
         "codex" = folder ".codex";
         "codex-personal" = folder ".codex-personal";
         "codex-work" = folder ".codex-work";
@@ -107,6 +108,7 @@ in
     ".claude/.stignore".text = claudeIgnore;
     ".claude-personal/.stignore".text = claudeIgnore;
     ".claude-work/.stignore".text = claudeIgnore;
+    ".claude-work-sub/.stignore".text = claudeIgnore;
     ".codex/.stignore".text = codexIgnore;
     ".codex-personal/.stignore".text = codexIgnore;
     ".codex-work/.stignore".text = codexIgnore;
