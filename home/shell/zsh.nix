@@ -86,10 +86,12 @@
       t2 = "tree -L 2";
       t3 = "tree -L 3";
 
-      # safe file operations
-      cp = "cp -iv";
-      mv = "mv -iv";
-      rm = "rm -iv";
+      # NOTE: no cp/mv/rm = "-iv" aliases on purpose. zsh expands aliases in
+      # NON-interactive shells too, so these reached scripts, ssh one-liners and
+      # coding agents — none of which answer the y/n prompt. With stdin at EOF
+      # the prompt auto-answers "no": `rm -iv f` skips the delete and still exits
+      # 0, so the caller reads success off a silent no-op. In a pipeline (stdin
+      # an open pipe) it blocks instead. Use `rm -i` explicitly for the guard.
 
       # neovim
       nv = "nvim";
