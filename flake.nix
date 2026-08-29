@@ -19,7 +19,28 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nix-homebrew.url = "github:zhaofengli/nix-homebrew";
+    # Homebrew itself is a read-only nix store copy (nix-homebrew symlinks
+    # /opt/homebrew/Library/Homebrew into /nix/store), so `brew update` CANNOT
+    # upgrade brew — its version is entirely whatever this input pins.
+    #
+    # Left as a transitive input of nix-homebrew, brew-src is locked to the tag
+    # that zhaofengli's repo happens to pin, which lags upstream by weeks: `nix
+    # flake update` respects nix-homebrew's own flake.lock and so never moves it.
+    # Cask/formula metadata meanwhile refreshes on every activation, so brew
+    # drifts behind the taps and starts failing on casks it can't parse.
+    #
+    # Declaring it here + `follows` puts brew on the normal update cadence.
+    # Tracks main (brew releases are cut from it); pin a tag like
+    # "github:Homebrew/brew/6.0.20" if an unreleased commit ever breaks a rebuild.
+    brew-src = {
+      url = "github:Homebrew/brew";
+      flake = false;
+    };
+
+    nix-homebrew = {
+      url = "github:zhaofengli/nix-homebrew";
+      inputs.brew-src.follows = "brew-src";
+    };
 
     nix-vscode-extensions = {
       url = "github:nix-community/nix-vscode-extensions";
