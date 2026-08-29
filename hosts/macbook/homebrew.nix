@@ -66,6 +66,7 @@
       "codex-app"       # Codex Desktop app (separate from the CLI; launched 2026-02)
       "coderabbit"
       "supacode"        # Native terminal coding agents command center (.app, requires macOS >= 26)
+      "t3-code"         # T3 Code — minimal GUI for AI code agents
 
       # Window management
       # aerospace — cask fails to install on newer macOS (aborts `brew bundle`,
