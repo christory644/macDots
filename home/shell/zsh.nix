@@ -86,12 +86,9 @@
       t2 = "tree -L 2";
       t3 = "tree -L 3";
 
-      # NOTE: no cp/mv/rm = "-iv" aliases on purpose. zsh expands aliases in
-      # NON-interactive shells too, so these reached scripts, ssh one-liners and
-      # coding agents — none of which answer the y/n prompt. With stdin at EOF
-      # the prompt auto-answers "no": `rm -iv f` skips the delete and still exits
-      # 0, so the caller reads success off a silent no-op. In a pipeline (stdin
-      # an open pipe) it blocks instead. Use `rm -i` explicitly for the guard.
+      # NOTE: cp/mv/rm are deliberately NOT here. Their `-iv` guard lives in
+      # initContent behind an `[[ -o interactive ]]` test — see the
+      # "Interactive-only guard" block below for why shellAliases is wrong for it.
 
       # neovim
       nv = "nvim";
@@ -230,6 +227,23 @@
         # Directory stack navigation aliases
         alias d='dirs -v'
         for index ({1..9}) alias "$index"="cd +''${index}"; unset index
+
+        # -- Interactive-only guard on destructive file ops --
+        # The y/n prompt is a fat-finger brake for hand-typed commands, and it
+        # belongs to interactive shells ONLY. It cannot go in shellAliases:
+        # home-manager writes those into .zshrc unconditionally and zsh expands
+        # aliases in non-interactive shells too, so the guard leaked into
+        # scripts, ssh one-liners and coding agents. None of those answer the
+        # prompt — with stdin at EOF it auto-answers "no", so `rm -iv f` skips
+        # the delete and still exits 0 and the caller reads success off a
+        # silent no-op; inside a pipeline it blocks outright instead.
+        # `-f` still wins over `-i` (GNU rm, last flag wins), so `rm -f` in
+        # scripts and functions like y() below is unaffected.
+        if [[ -o interactive ]]; then
+          alias cp='cp -iv'
+          alias mv='mv -iv'
+          alias rm='rm -iv'
+        fi
 
         # -- Vi mode --
         bindkey -v
