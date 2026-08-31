@@ -1,5 +1,9 @@
 # Two-Machine Transitional Coexistence Implementation Plan
 
+> **STATUS (2026-08-30): COMPLETE.** All four tasks landed on `main` (mkHost
+> two-host flake, per-host hostname, per-host aliases, Universal Control off).
+> Checkboxes below were ticked retroactively; kept for the teardown seam notes.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Let the old (`christopherstory`) and new (`christory`) Macs build and run concurrently from one flake without competing, with a one-line teardown seam once the old Mac is wiped.
@@ -36,7 +40,7 @@
 - Consumes: nothing new.
 - Produces: `darwinConfigurations.macbook` and `darwinConfigurations.christoryCertifyOSMacbook`; `hostname` (string) available in each host's nix-darwin `specialArgs` and home-manager `extraSpecialArgs`.
 
-- [ ] **Step 1: Replace the single-host block with `mkHost` + two entries**
+- [x] **Step 1: Replace the single-host block with `mkHost` + two entries**
 
 In `flake.nix`, replace everything from `let` (line ~31) through the closing of `darwinConfigurations.${hostname}` (the `};` before the final `};` at line ~74) with:
 
@@ -105,7 +109,7 @@ In `flake.nix`, replace everything from `let` (line ~31) through the closing of 
 
 (The old `username`/`hostname` `let` bindings are removed — they're now per-host arguments to `mkHost`.)
 
-- [ ] **Step 2: Verify both hosts evaluate**
+- [x] **Step 2: Verify both hosts evaluate**
 
 Run:
 ```bash
@@ -114,7 +118,7 @@ nix eval .#darwinConfigurations.christoryCertifyOSMacbook.system.drvPath
 ```
 Expected: each prints a `/nix/store/…-darwin-system-*.drv` path (no eval errors).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add flake.nix
@@ -132,7 +136,7 @@ git commit -m "refactor: parameterize flake into two hosts via mkHost"
 - Consumes: `hostname` (string) from `specialArgs` (Task 1).
 - Produces: `networking.hostName`/`localHostName`/`computerName` all equal to the per-host `hostname`.
 
-- [ ] **Step 1: Show the current (wrong) value — the "failing test"**
+- [x] **Step 1: Show the current (wrong) value — the "failing test"**
 
 Run:
 ```bash
@@ -140,7 +144,7 @@ nix eval --raw .#darwinConfigurations.christoryCertifyOSMacbook.config.networkin
 ```
 Expected right now: `macbook` (wrong — both hosts still share the hardcoded name).
 
-- [ ] **Step 2: Accept `hostname` in the module args**
+- [x] **Step 2: Accept `hostname` in the module args**
 
 Change `hosts/macbook/default.nix:1` from:
 ```nix
@@ -151,7 +155,7 @@ to:
 { pkgs, username, hostname, ... }:
 ```
 
-- [ ] **Step 3: Drive the three name fields from `hostname`**
+- [x] **Step 3: Drive the three name fields from `hostname`**
 
 Replace `hosts/macbook/default.nix:197`:
 ```nix
@@ -164,7 +168,7 @@ with:
   networking.computerName = hostname;    # friendly name in Sharing/Finder
 ```
 
-- [ ] **Step 4: Verify each host now reports its own hostname**
+- [x] **Step 4: Verify each host now reports its own hostname**
 
 Run:
 ```bash
@@ -173,7 +177,7 @@ nix eval --raw .#darwinConfigurations.macbook.config.networking.hostName
 ```
 Expected: `christoryCertifyOSMacbook` and `macbook` respectively.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add hosts/macbook/default.nix
@@ -191,7 +195,7 @@ git commit -m "feat: per-host hostname (hostName/localHostName/computerName)"
 - Consumes: `hostname` (string) from home-manager `extraSpecialArgs` (Task 1).
 - Produces: `rebuild`/`update` aliases that target `-H ${hostname}`.
 
-- [ ] **Step 1: Show the current (wrong) alias — the "failing test"**
+- [x] **Step 1: Show the current (wrong) alias — the "failing test"**
 
 Run:
 ```bash
@@ -199,7 +203,7 @@ nix eval --raw .#darwinConfigurations.christoryCertifyOSMacbook.config.home-mana
 ```
 Expected right now: `nh darwin switch ~/repos/macDots -H macbook` (wrong host).
 
-- [ ] **Step 2: Accept `hostname` in the module args**
+- [x] **Step 2: Accept `hostname` in the module args**
 
 In `home/shell/zsh.nix`, add `hostname` to the function arguments. Change:
 ```nix
@@ -215,7 +219,7 @@ to:
   hostname,
 ```
 
-- [ ] **Step 3: Make the aliases per-host**
+- [x] **Step 3: Make the aliases per-host**
 
 Replace `home/shell/zsh.nix:164`:
 ```nix
@@ -235,7 +239,7 @@ with:
       update = "nix flake update --flake ~/repos/macDots && nh darwin switch ~/repos/macDots -H ${hostname}";
 ```
 
-- [ ] **Step 4: Verify the alias is now per-host**
+- [x] **Step 4: Verify the alias is now per-host**
 
 Run:
 ```bash
@@ -244,7 +248,7 @@ nix eval --raw .#darwinConfigurations.macbook.config.home-manager.users.christop
 ```
 Expected: `nh darwin switch ~/repos/macDots -H christoryCertifyOSMacbook` and `… -H macbook`.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add home/shell/zsh.nix
@@ -263,7 +267,7 @@ git commit -m "feat: per-host rebuild/update aliases"
 - Consumes: nothing new (uses `lib`).
 - Produces: `home.activation.disableUniversalControl`.
 
-- [ ] **Step 1: Create the module**
+- [x] **Step 1: Create the module**
 
 Create `home/universal-control.nix`:
 ```nix
@@ -285,7 +289,7 @@ Create `home/universal-control.nix`:
 }
 ```
 
-- [ ] **Step 2: Import it**
+- [x] **Step 2: Import it**
 
 In `home/default.nix`, add `./universal-control.nix` to the `imports` list (e.g. after `./syncthing.nix`):
 ```nix
@@ -294,7 +298,7 @@ In `home/default.nix`, add `./universal-control.nix` to the `imports` list (e.g.
   ];
 ```
 
-- [ ] **Step 3: Verify it evaluates**
+- [x] **Step 3: Verify it evaluates**
 
 Run:
 ```bash
@@ -303,7 +307,7 @@ nix eval .#darwinConfigurations.macbook.system.drvPath
 ```
 Expected: both print a `.drv` path (the whole system, including the new activation script, evaluates).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add home/universal-control.nix home/default.nix
