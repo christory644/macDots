@@ -8,10 +8,10 @@
 # syncs these folders directly between your Macs: peer-to-peer, encrypted in
 # transit, NO cloud / NO third party (FileVault covers data at rest).
 #
-# Pairing the Mac Studio (later): bring it up with this same config, open each
-# machine's Syncthing UI (http://127.0.0.1:8384), exchange device IDs, add the
-# Studio under `devices` below + to each folder's `devices` list, rebuild. Then
-# everything flows over once.
+# Pairing the new MacBook: bring it up with this same config, open each
+# machine's Syncthing UI (http://127.0.0.1:8384), exchange device IDs, set the
+# other machine's ID under `devices` below and add its name to `peers`, rebuild
+# on both. Then everything flows over once.
 #
 # .stignore (below) drops regenerable caches/logs/live sqlite DBs and per-machine
 # auth (re-auth per machine) while KEEPING projects/ (memories + conversations),
@@ -65,9 +65,13 @@ let
     .DS_Store
   '';
 
+  # Peer device names every folder is shared with. Empty until the new
+  # MacBook is paired — then set to [ "christoryCertifyOSMacbook" ].
+  peers = [ ];
+
   folder = sub: {
     path = "${home}/${sub}";
-    devices = [ ]; # add "studio" here once the Mac Studio is paired
+    devices = peers;
   };
 in
 {
@@ -76,7 +80,8 @@ in
     settings = {
       options.urAccepted = -1; # decline anonymous usage reporting
       devices = {
-        # studio.id = "XXXXXXX-XXXXXXX-...";  # from the Studio's Syncthing UI
+        # From the new MacBook's Syncthing UI (Actions → Show ID):
+        # christoryCertifyOSMacbook.id = "XXXXXXX-XXXXXXX-...";
       };
       folders = {
         # ── Permanent: coding-agent continuity (memories + conversations) ──
@@ -113,5 +118,11 @@ in
     ".codex-personal/.stignore".text = codexIgnore;
     ".codex-work/.stignore".text = codexIgnore;
     "repos/.stignore".text = reposIgnore;
+    # iCloud Photos carries the library; syncing a live .photoslibrary bundle
+    # corrupts its internal DB. Loose images in ~/Pictures still sync.
+    "Pictures/.stignore".text = ''
+      Photos Library.photoslibrary
+      .DS_Store
+    '';
   };
 }
