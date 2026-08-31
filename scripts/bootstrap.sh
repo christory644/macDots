@@ -8,7 +8,24 @@
 set -euo pipefail
 
 DOTS="$HOME/repos/macDots"
-HOSTNAME="macbook"
+
+# ── Which host to build ──────────────────────────────────────────────
+# The flake defines two darwinConfigurations (transitional two-machine
+# setup): "macbook" (old M3/18GB, TEARDOWN) and "christoryCertifyOSMacbook"
+# (new work MacBook). Pick explicitly:
+#   BOOTSTRAP_HOST=christoryCertifyOSMacbook  curl -fsSL ... | bash
+# or let the machine's current LocalHostName choose when it already matches.
+KNOWN_HOSTS="macbook christoryCertifyOSMacbook"
+HOST_ATTR="${BOOTSTRAP_HOST:-$(scutil --get LocalHostName 2>/dev/null || true)}"
+case " $KNOWN_HOSTS " in
+  *" $HOST_ATTR "*) ;;
+  *)
+    echo "!! Unknown host '$HOST_ATTR' — refusing to guess which machine this is." >&2
+    echo "   Set BOOTSTRAP_HOST to one of: $KNOWN_HOSTS" >&2
+    echo "   e.g. BOOTSTRAP_HOST=christoryCertifyOSMacbook curl -fsSL ... | bash" >&2
+    exit 1
+    ;;
+esac
 
 echo "==> macDots bootstrap"
 
@@ -107,13 +124,13 @@ fi
 
 # ── First nix-darwin build ───────────────────────────────────────────
 echo "==> Building nix-darwin configuration..."
-nix build "$DOTS#darwinConfigurations.$HOSTNAME.system"
+nix build "$DOTS#darwinConfigurations.$HOST_ATTR.system"
 
 echo "==> Activating nix-darwin (first run)..."
 # First-run activation writes /etc, /run/current-system and loads launchd
 # daemons — it needs root. Without sudo the switch fails on permissions and
 # home-manager user activation (shell aliases, tmux/cmux, etc.) never runs.
-sudo "$DOTS/result/sw/bin/darwin-rebuild" switch --flake "$DOTS#$HOSTNAME"
+sudo "$DOTS/result/sw/bin/darwin-rebuild" switch --flake "$DOTS#$HOST_ATTR"
 
 # ── Rust toolchain (rustup is installed by nix, but needs initial setup) ──
 if ! command -v rustc &>/dev/null; then
