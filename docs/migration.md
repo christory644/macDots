@@ -84,6 +84,49 @@ hostname automatically.
 10. Open a new terminal and confirm the shell config is live: `rebuild` runs
     clean (the alias already targets the right host).
 
+### 2b. Resuming from an earlier, half-baked bootstrap
+
+If bootstrap already ran on the new Mac weeks ago (state unknown), do NOT
+start over — heal it. Order matters:
+
+1. **Inventory what's there:**
+   ```bash
+   scutil --get LocalHostName          # "macbook" = it built the OLD host (see below)
+   ls /run/current-system              # exists = some switch completed
+   git -C ~/repos/macDots log -1 --format=%cs   # how stale the checkout is
+   ls ~/.ssh/christory644 ~/.ssh/chris-certifyos 2>/dev/null  # keys already decrypted?
+   ```
+2. **Update the checkout — bootstrap never pulls:**
+   ```bash
+   git -C ~/repos/macDots pull
+   ```
+3. **Force the private manifest to re-decrypt** (a stale plaintext copy blocks
+   it, and the age passphrase was rotated 2026-08-31 — old blobs in the stale
+   checkout are dead):
+   ```bash
+   rm -f ~/repos/macDots/repos-private.yml
+   ```
+4. **Re-run the one-liner — `BOOTSTRAP_HOST` is MANDATORY here.** A pre-fix
+   bootstrap renamed the machine to `macbook`, which the autodetect would
+   happily treat as the old host and silently rebuild the wrong config:
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/christory644/macDots/main/scripts/bootstrap.sh      | BOOTSTRAP_HOST=christoryCertifyOSMacbook bash
+   ```
+   The switch heals everything declarative in one pass: hostname, per-host
+   Ollama tier, aliases, casks. Already-decrypted SSH keys are left alone
+   (they were never rotated — only the age wrapper was).
+5. **Stale repo clones vs the Syncthing seed:** clones from weeks ago will be
+   merged into by the `repos` folder sync, which can leave conflict copies
+   inside `.git`. Cleanest: move them aside before pairing and let the seed
+   land fresh —
+   ```bash
+   cd ~ && mv repos repos.stale && mkdir repos && mv repos.stale/macDots repos/
+   # after Syncthing settles and repos look right: rm -rf ~/repos.stale
+   ```
+   (Keeping them works too; a repo that acts odd after the seed usually heals
+   with `git fetch origin`, or re-clone just that one.)
+6. Continue at §3 below.
+
 ## 3. Pair Syncthing and let data flow
 
 11. On **both** machines open <http://127.0.0.1:8384> and add the other as a
