@@ -66,13 +66,7 @@
       GOPATH = "$HOME/go";
       KEYTIMEOUT = "1";
 
-      # Ollama — tuned for M3 18GB (bump NUM_PARALLEL and MAX_LOADED_MODELS on bigger machine)
-      OLLAMA_USE_MLX = "1";          # use Apple MLX backend (unified memory, no CPU/GPU copy overhead)
-      OLLAMA_FLASH_ATTENTION = "1";  # faster inference on Apple Silicon
-      OLLAMA_KV_CACHE_TYPE = "q8_0"; # halves KV cache memory
-      OLLAMA_KEEP_ALIVE = "10m";     # shorter keepalive to free RAM faster
-      OLLAMA_NUM_PARALLEL = "1";     # single request at a time (RAM limited)
-      OLLAMA_MAX_LOADED_MODELS = "1"; # only one model loaded at a time
+      # Ollama env lives in home/ollama.nix (per-host, shared with launchd).
     };
 
     shellAliases = {
