@@ -154,6 +154,32 @@ start over — heal it. Order matters:
     > nothing accidentally flows back. Flip to Send & Receive once settled.
     > Replication is not backup — a deletion propagates to both machines.
 
+    **Why `repos` goes over Syncthing at all, when most of it is in git.**
+    Fair objection, and `scripts/repo-triage.sh` answers it with numbers
+    rather than opinion. Measured on the old Mac, of 126 repo directories:
+
+    | | repos | transfer |
+    |---|---|---|
+    | a plain `git clone` restores it exactly | 83 | 0.83 GB (3.8%) |
+    | git would silently lose something | 43 | 20.83 GB (96.2%) |
+
+    So git *is* the right carrier for two thirds of the repos by count — and
+    it buys back under 4% of the bytes, because the weight is all in repos
+    git cannot hold. `second_brain` alone is 11.94 GB, 55% of the entire
+    seed, and has no remote by design (its archives don't fit GitHub). The
+    top three sync-only repos are 71%.
+
+    The 43 are not sloppiness; they are what a working machine looks like:
+    24 dirty worktrees, 18 holding gitignored local config a clone would drop
+    (`.env`, `*.local`), 13 with local-only branches, 8 with unpushed commits,
+    6 with stashes, 2 with no remote, 3 not git repos at all.
+
+    Conclusion: seeding all of `repos` once is the right call, but do not
+    replicate the clone-restorable 83 bidirectionally for longer than the
+    migration needs — that is live `.git` on two machines for no gain. Run
+    `scripts/repo-triage.sh --host <old> --emit <dir>` to get a manifest for
+    the 83 and an ignore list to keep them out of the seed.
+
 ## 4. One-shot copies Syncthing doesn't cover
 
 Do these with the relevant apps **quit on both machines** (verify with
