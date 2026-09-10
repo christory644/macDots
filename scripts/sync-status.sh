@@ -69,6 +69,7 @@ echo
 if [ "$settled" = 1 ]; then
   echo "==> SETTLED. Every folder is idle and neither side has anything pending."
   echo "    Safe to rely on ~/repos and to start work on the synced trees."
+  exit 0   # exit code is the machine-readable answer: 0 settled, 1 still going
 else
   echo "==> STILL SYNCING. Re-run this later; 'sync-preparing' on a large"
   echo "    folder means the peer is still hashing and the numbers will move."
@@ -76,4 +77,5 @@ else
   echo "    Note: a .claude*/.codex* folder parked just under 100% is normal"
   echo "    while an agent is running here — it writes to its own state dir"
   echo "    faster than the peer can pull. Judge those with every agent quit."
+  exit 1
 fi
