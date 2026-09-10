@@ -64,7 +64,10 @@ ssh christopherstory@macbook.local pkill -x caffeinate
 1. **Raycast** — installed but never launched, so it has no config at all.
    Launch it, then System Settings → Privacy & Security → Accessibility and
    enable it. There is **no cloud restore**: `subscriptions_active = 0`, so no
-   Raycast Pro and no settings sync. Its config must be copied (see §4).
+   Raycast Pro and no settings sync. Migrate it with Raycast's own
+   export/import, **not** by copying files — its databases are encrypted with a
+   key held in the old Mac's keychain. Steps in §4. This is a daily-driver tool,
+   so do it first.
 2. **Wallpaper** — `~/repos/wallpapers` is synced but nothing is applied.
    System Settings → Wallpaper → Add Folder → `~/repos/wallpapers`. This is
    deliberately manual: macOS Tahoe broke the AppleScript rotation API, so the
@@ -82,16 +85,26 @@ ssh christopherstory@macbook.local pkill -x caffeinate
 
 ## 4. Scriptable, once a precondition clears
 
-- **Raycast config** — copy once Raycast is quit on **both** machines. Only
-  ~20 MB matters; skip the regenerable bulk:
-  ```bash
-  rsync -a --exclude Updates --exclude NodeJS --exclude RaycastWrapped \
-    'christopherstory@macbook.local:Library/Application\ Support/com.raycast.macos/' \
-    ~/Library/Application\ Support/com.raycast.macos/
-  scp christopherstory@macbook.local:Library/Preferences/com.raycast.macos.plist \
-    ~/Library/Preferences/
-  ```
-  (Escape the spaces — see the runbook's §4 warning.)
+- **Raycast config** — use Raycast's own export, **not** a file copy. Its two
+  real databases are encrypted (`raycast-enc.sqlite` and
+  `raycast-activities-enc.sqlite` have binary headers, while
+  `raycast-emoji.sqlite` reads `SQLite format 3`), and the key lives in the old
+  Mac's login keychain as service `Raycast`, account `database_key`. rsyncing
+  the folder therefore produces an unreadable database — the same trap as the
+  SSH key passphrases, and it fails just as quietly.
+
+  The supported path (verified present in the app binary, and free — the Pro
+  subscription is only for cloud sync, and `subscriptions_active = 0` here):
+
+  1. **Old Mac** — Raycast → Settings → Advanced → **Export Settings & Data**.
+     Save it into `~/Documents`, which is a synced folder, so it lands on the
+     new Mac by itself.
+  2. **New Mac** — launch Raycast, grant Accessibility, then Settings →
+     Advanced → **Import Settings & Data** and pick the `.rayconfig`.
+
+  Raycast is used constantly on the old machine, so treat this as the highest
+  priority of the GUI items rather than a nice-to-have.
+
 - **Stop replicating the clone-restorable repos** — after the seed settles.
   83 of 126 repos are exactly reproducible with `git clone`, and keeping them
   in a bidirectional sync means a live `.git` on two machines for no gain.
