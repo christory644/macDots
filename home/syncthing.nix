@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, hostname, ... }:
 
 # Syncthing — peer-to-peer continuity for coding-agent state across machines.
 #
@@ -65,9 +65,16 @@ let
     .DS_Store
   '';
 
-  # Peer device names every folder is shared with. Empty until the new
-  # MacBook is paired — then set to [ "christoryCertifyOSMacbook" ].
-  peers = [ ];
+  # Device IDs for both machines (Actions → Show ID in each Syncthing UI).
+  # TEARDOWN: drop the `macbook` entry once that Mac is wiped.
+  deviceIds = {
+    macbook = "2YSVEFS-BSHUPQU-J2HVVUL-O6FZ3U7-ASXFOZ4-O467HKR-LRBLHST-VD4FUAH";
+    christoryCertifyOSMacbook = "R5FO54I-QKZI3UE-VT2PRYV-KHFESHA-EP2DNCI-LJW2VGO-QWEVXHA-EYLDHQY";
+  };
+
+  # One flake builds both machines, so the peer must be derived, never hardcoded:
+  # each host pairs with the OTHER one. A literal would point the old Mac at itself.
+  peers = builtins.filter (n: n != hostname) (builtins.attrNames deviceIds);
 
   folder = sub: {
     path = "${home}/${sub}";
@@ -79,10 +86,10 @@ in
     enable = true;
     settings = {
       options.urAccepted = -1; # decline anonymous usage reporting
-      devices = {
-        # From the new MacBook's Syncthing UI (Actions → Show ID):
-        # christoryCertifyOSMacbook.id = "XXXXXXX-XXXXXXX-...";
-      };
+      # Only the peer is declared — a machine never lists itself as a device.
+      devices = builtins.listToAttrs (
+        map (n: { name = n; value = { id = deviceIds.${n}; }; }) peers
+      );
       folders = {
         # ── Permanent: coding-agent continuity (memories + conversations) ──
         "claude" = folder ".claude";
