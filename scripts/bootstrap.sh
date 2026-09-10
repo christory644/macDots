@@ -132,10 +132,17 @@ echo "==> Activating nix-darwin (first run)..."
 # home-manager user activation (shell aliases, tmux/cmux, etc.) never runs.
 sudo "$DOTS/result/sw/bin/darwin-rebuild" switch --flake "$DOTS#$HOST_ATTR"
 
-# ── Rust toolchain (rustup is installed by nix, but needs initial setup) ──
-if ! command -v rustc &>/dev/null; then
-  echo "==> Installing default Rust toolchain via rustup..."
-  rustup-init -y --no-modify-path
+# ── Language runtimes (mise owns these, rust included) ───────────────
+# This step is deliberately NON-FATAL. It used to be a rustup block:
+#   if ! command -v rustc; then rustup-init -y --no-modify-path; fi
+# but nothing in the flake ever provided `rustup-init`, so on a fresh Mac
+# (no rustc yet) the call exited 127 and `set -e` killed bootstrap on that
+# line — which sits immediately before the repo clone below. Result: a
+# machine with a fully activated system config and a completely empty
+# ~/repos, with no error the user ever saw. Rust now comes from mise.
+if command -v mise &>/dev/null; then
+  echo "==> Installing language runtimes via mise..."
+  mise install || echo "!! some runtimes failed to build — re-run 'mise install' later"
 fi
 
 # ── Clone all repos from manifest (uses SSH — keys are decrypted) ────
@@ -157,5 +164,9 @@ echo "    - gcloud auth login"
 echo "    - gcloud auth application-default login"
 echo ""
 echo "    Tools not managed by nix (installed above):"
-echo "    - Rust toolchains: managed by rustup (rustup update)"
-echo "    - Node versions: managed by mise (mise use -g node@24)"
+echo "    - Language runtimes incl. rust + node: managed by mise (mise install)"
+echo ""
+echo "    SSH keys are decrypted but still passphrase-locked. The login"
+echo "    keychain is NOT migrated, so unlock each key once on this machine:"
+echo "    - ssh-add --apple-use-keychain ~/.ssh/christory644"
+echo "    - ssh-add --apple-use-keychain ~/.ssh/chris-certifyos"
