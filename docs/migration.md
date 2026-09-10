@@ -6,6 +6,11 @@ wipe; hybrid keychain (iCloud + archive copy); Arc + Chrome profiles move;
 iCloud Photos carries the photo library; local DBs are recreated, not dumped;
 only `.claude*`/`.codex*` agent state carries over.
 
+> **Current state of the new Mac lives in
+> [`new-machine-status.md`](new-machine-status.md)** — what's done, what's
+> still outstanding, and which items only you can do. This file stays the
+> generic runbook; that one is the live status.
+
 **Strategy:** clean bootstrap — everything reproducible comes from this repo.
 Non-reproducible *user data* (agent memories, personal folders, repo working
 trees) carries over Syncthing; a handful of things Syncthing doesn't cover
