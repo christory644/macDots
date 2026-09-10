@@ -129,13 +129,20 @@ start over — heal it. Order matters:
 
 ## 3. Pair Syncthing and let data flow
 
-11. On **both** machines open <http://127.0.0.1:8384> and add the other as a
-    Remote Device (Device IDs from step 7 / the new Mac's UI). Then make it
-    declarative in `home/syncthing.nix`:
-    - set `christoryCertifyOSMacbook.id = "…"` under `devices`
-      (on the old machine's checkout, the old Mac's ID on the new one),
-    - set `peers = [ "<other machine's device name>" ]`,
-    - `rebuild` on both.
+11. Both machines' Device IDs are already committed in `home/syncthing.nix`
+    (`deviceIds`), and `peers` is derived from the hostname, so each host
+    pairs with the other automatically — just `rebuild` on **both**. For a
+    third machine, add its ID (its UI → Actions → Show ID) to `deviceIds`
+    and commit *before* rebuilding either side.
+
+    > **The device list is declarative and `overrideDevices` defaults to
+    > true.** Pairing by hand in the web UI is undone at the next rebuild,
+    > and a peer that isn't declared is refused outright — the other end
+    > shows "disconnected" or a refused connection. Both machines must
+    > rebuild from a checkout that *already contains the other's ID*. A
+    > rebuild that predates the commit leaves that side sharing nothing,
+    > even though the two will happily connect: the symptom is a live
+    > connection where no folder ever leaves "Up to Date / 0 files".
 12. As each folder is offered, **Accept / Share** on the receiving side.
     Folders that flow: agent state (`.claude*`, `.codex*`), `Downloads`,
     `Documents` (includes `backups/` and `work-scratch/`), `Pictures` (loose
@@ -149,21 +156,37 @@ start over — heal it. Order matters:
 
 ## 4. One-shot copies Syncthing doesn't cover
 
-Do these with the relevant apps **quit on both machines**. Easiest transport:
-enable Remote Login on the old Mac (System Settings → General → Sharing), then
-pull from the new Mac:
+Do these with the relevant apps **quit on both machines** (verify with
+`pgrep -x Arc`, `pgrep -x "Google Chrome"` on each — copying a live profile
+corrupts it). Transport: enable Remote Login on the old Mac (System Settings →
+General → Sharing), then authorize this machine once so the copies below need
+no password:
+
+```bash
+ssh-copy-id -i ~/.ssh/christory644.pub christopherstory@macbook.local
+```
+
+> **Escape the spaces in every remote path below.** rsync hands the remote
+> side of the transfer to a shell, so an unescaped
+> `macbook.local:Library/Application Support/Arc/` arrives as two arguments
+> and rsync reports `Library/Application: No such file or directory` followed
+> by `sender has empty file list: exiting`. It exits non-zero having copied
+> nothing — and because the receiver also exits on an empty list, `--delete`
+> destroys nothing, so this fails *silently* unless you check the exit code.
+
+Then pull from the new Mac:
 
 13. **Arc** (spaces, pinned tabs, profiles are local-only). Install Arc, launch
     once, quit, then:
     ```bash
     rsync -a --delete --exclude 'Cache*' --exclude 'GPUCache' \
-      'christopherstory@macbook.local:Library/Application Support/Arc/' \
+      'christopherstory@macbook.local:Library/Application\ Support/Arc/' \
       ~/Library/Application\ Support/Arc/
     ```
 14. **Chrome** (open tabs + extension local state; the rest syncs via Google):
     ```bash
     rsync -a --delete --exclude 'Cache*' \
-      'christopherstory@macbook.local:Library/Application Support/Google/Chrome/' \
+      'christopherstory@macbook.local:Library/Application\ Support/Google/Chrome/' \
       ~/Library/Application\ Support/Google/Chrome/
     ```
 15. **Keychain archive** (read-on-demand copy of everything local — app
@@ -191,9 +214,13 @@ pull from the new Mac:
     gcloud auth login                      # christopher.story@certifyos.com
     gcloud auth application-default login  # ADC — pulumi/terraform read this
 
-    mise use -g node@24
-    rustup default stable
+    mise install    # every runtime in ~/.config/mise/config.toml, rust included
     ```
+
+    (There is no separate rustup step: nothing in the flake provides
+    `rustup-init`, and rust is a mise-managed runtime. `mise install` is also
+    non-fatal inside `bootstrap.sh` — a runtime that fails to build must never
+    stop the repo clone that follows it.)
 18. Apps and grants:
     - Slack, email, calendar — sign in, check notifications work.
     - Arc + Chrome: sign into browser accounts on top of the copied profiles.
@@ -341,3 +368,27 @@ whatever already completed.
 
 - **Aerospace runs but won't manage windows** — grant Accessibility (§5), and
   re-grant after flake updates that bump its version.
+
+- **An SSH key that works on the old Mac is "Permission denied (publickey)"
+  on the new one.** The keys are fine and are not machine-specific — their
+  *passphrases* are, because they live in the login keychain, which §8
+  deliberately never migrates. Confirm with `ssh -vv -T git@github.com-<host>`:
+  `Server accepts key:` followed by `Passphrase not found in the keychain`
+  means GitHub is happy and only the local unlock is missing. Fix once per
+  key, per machine:
+  ```bash
+  ssh-add --apple-use-keychain ~/.ssh/christory644
+  ssh-add --apple-use-keychain ~/.ssh/chris-certifyos
+  ```
+  A key already sitting in `ssh-add -l` was unlocked earlier and hides the
+  problem for that one account, which is why it usually shows up as "only my
+  *work* key is broken".
+
+- **`nix flake update` produces a lock that won't evaluate** — the failure is
+  an unfree-license refusal on a VS Code *marketplace* extension
+  (`vscode-extension-rangav-vscode-thunder-client` at the time of writing).
+  `nixpkgs.config.allowUnfree` in `hosts/macbook/default.nix` does not reach
+  the package set behind `nix-vscode-extensions`. Confirm the lock is the
+  cause by stashing it and re-evaluating; the fix is to drop the extension
+  from `home/vscode.nix` or give that input's package set its own
+  `allowUnfree`. Never commit a lock you have not built.
