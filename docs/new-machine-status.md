@@ -40,24 +40,34 @@ guarded against by making that step non-fatal.
 > `~/repos/fonts` via home-manager, since that repo already carries all 12
 > families).
 
-## 2. In flight — nothing to do but wait
+## 2. Syncthing seed — COMPLETE (2026-09-10 ~05:20)
 
-The Syncthing seed. Check with:
+All 14 folders settled; `scripts/sync-status.sh` exits 0. Verified against the
+old Mac: 126 of 126 repo directories, 12,662 of 12,662 Downloads files,
+Documents matching, `second_brain` intact at 12 GB with matching HEAD. Sleep
+guards released on both machines.
 
-```bash
-scripts/sync-status.sh      # exits 0 when settled, 1 while syncing
-```
+Two problems surfaced during the seed and are worth knowing about:
 
-Agent state, Documents, Pictures, Movies, Music and Screenshots are complete.
-`repos` and `Downloads` are still transferring. Both machines are held awake
-with `caffeinate -ims` and must stay on AC with lids open until it finishes.
+- **The receiving side wedged.** `Downloads` sat in `sync-preparing` for over
+  90 minutes with zero throughput while the sending side was idle and healthy
+  with all 12,661 files ready. Restarting the local service
+  (`launchctl kickstart -k gui/$(id -u)/org.nix-community.home.syncthing`)
+  cleared it immediately. Worth checking for if a folder ever looks stuck:
+  compare both ends before assuming a network problem.
+- **16 files in `Documents/work-scratch` failed repeatedly** with
+  `finishing: pull: generic error`, leaving `.syncthing.*.tmp` files behind.
+  Ordinary small files, writable target directories, and a manual rename in
+  the same directory worked, so the cause was never identified. Resolved by
+  rsyncing those 16 directly and rescanning.
 
-Release the guards once settled:
-
-```bash
-pkill -x caffeinate
-ssh christopherstory@macbook.local pkill -x caffeinate
-```
+**Live `.git` on two machines produced real conflicts**, exactly the risk noted
+in §4. 23 `.sync-conflict-*` files appeared, confined to the two repos being
+written on both machines at once: `macDots` (edited here) and `second_brain`
+(its auto-commit service running there). All were `.git` internals — index,
+refs, logs, one loose object. Neither repo was damaged: both `fsck` clean and
+both HEADs match the old Mac exactly. The debris has been removed. This is the
+concrete argument for §4's pruning job, not a hypothetical one.
 
 ## 3. Blocked on you — GUI only, cannot be scripted
 
