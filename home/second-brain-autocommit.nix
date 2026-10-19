@@ -19,9 +19,16 @@ let
   repo = "${config.home.homeDirectory}/repos/second_brain";
 
   autocommit = pkgs.writeShellScript "second-brain-autocommit" ''
-    export PATH="${lib.makeBinPath [ pkgs.git pkgs.coreutils ]}"
+    export PATH="${lib.makeBinPath [ pkgs.git pkgs.coreutils pkgs.findutils ]}"
     cd "${repo}" 2>/dev/null || exit 0
     [ -d .git ] || exit 0
+    # never commit into a repo Syncthing is still assembling: a HEAD that does
+    # not resolve (its objects haven't arrived) or Syncthing temp files inside
+    # .git mean the commit would be built on a partial tree. Every rebuild
+    # reloads this agent (RunAtLoad), so it must refuse on its own rather than
+    # rely on being booted out by hand mid-seed (new Mac, 2026-10-18).
+    git rev-parse -q --verify 'HEAD^{commit}' >/dev/null || exit 0
+    [ -z "$(find .git -name '.syncthing.*.tmp' -print -quit 2>/dev/null)" ] || exit 0
     # nothing changed -> nothing to do
     [ -n "$(git status --porcelain)" ] || exit 0
     git add -A
