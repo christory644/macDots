@@ -31,53 +31,23 @@ let
     skip() { echo "$(date '+%F %T') skipped: $*"; exit 0; }
     # 1. HEAD must resolve: its objects may not have arrived yet.
     git rev-parse -q --verify 'HEAD^{commit}' >/dev/null || skip "HEAD does not resolve"
-    # 2. The Syncthing folder holding ~/repos (`repos` in syncthing.nix) must
-    #    owe this machine nothing. .git routinely finishes before the working
-    #    tree, and `git add -A` would then commit every file still in flight as
-    #    a deletion; no on-disk artefact reliably shows that, the folder status
-    #    does. Its need counts only mean something once a peer is connected,
-    #    and RunAtLoad fires at login, when Syncthing may not have reconnected
-    #    yet, so a connected peer is required too. Fails closed: no config or
-    #    no API answer means no commit. Folder not configured (404, e.g. after
-    #    the migration seed is torn down): proceed with no peer needed.
-    st="$HOME/Library/Application Support/Syncthing/config.xml"
-    [ -f "$st" ] || skip "no Syncthing config at $st"
-    key=$(grep -oE '<apikey>[^<]+' "$st" | cut -d'>' -f2)
-    api="http://127.0.0.1:8384/rest"
-    code=$(curl -s -m 10 -o /dev/null -w '%{http_code}' -H "X-API-Key: $key" "$api/config/folders/repos")
-    case "$code" in
-      200)
-          # A peer only has to be connected if one is actually EXPECTED: the
-          # folder's device list, minus ourselves, minus any device that is
-          # paused or no longer configured. Empty set means nothing to wait for.
-          #
-          # Requiring a live peer unconditionally — as the first version did —
-          # fails exactly when it matters. Once the old Mac is paused or gone,
-          # no peer ever connects again, so every run skips forever while the
-          # log looks perfectly healthy.
-          #
-          # NOTE the jq: `has("paused") and .paused == false`, never
-          # `.paused // x`. jq's // treats FALSE as empty, so the shorthand
-          # reports every unpaused device as absent — failing open on precisely
-          # the peers this is meant to wait for.
-          me=$(curl -s -m 10 -H "X-API-Key: $key" "$api/system/status" | jq -r '.myID // empty')
-          folderdevs=$(curl -s -m 10 -H "X-API-Key: $key" "$api/config/folders/repos" \
-                       | jq -r --arg me "$me" '[.devices[].deviceID | select(. != $me)]')
-          expected=$(curl -s -m 10 -H "X-API-Key: $key" "$api/config/devices" | jq --argjson fd "$folderdevs" '
-            [ .[] | select(.deviceID as $d | $fd | index($d))
-                  | select(has("paused") and .paused == false) ] | length')
-          if [ "''${expected:-1}" -gt 0 ]; then
-            curl -s -m 10 -H "X-API-Key: $key" "$api/system/connections" \
-              | jq -e '[.connections[] | select(.connected)] | length > 0' >/dev/null \
-              || skip "$expected unpaused peer(s) share this folder and none is connected"
-          fi
-        curl -s -m 30 -H "X-API-Key: $key" "$api/db/status?folder=repos" | jq -e '
-          (.needBytes + .needFiles + .needDeletes) == 0
-          and (.state | IN("syncing", "sync-preparing", "sync-waiting", "error") | not)
-        ' >/dev/null || skip "Syncthing is still delivering the repos folder" ;;
-      404) ;;
-      *) skip "Syncthing API not answering (HTTP $code)" ;;
-    esac
+    # 2. The Syncthing gate that used to live here is GONE, because Syncthing
+    #    is gone (2026-10-19). It existed to stop `git add -A` committing
+    #    in-flight files as deletions while a peer was still delivering the
+    #    repos folder — a real hazard while two machines shared it.
+    #
+    #    Leaving it in place after the service stopped would have been worse
+    #    than useless: the config.xml still exists, so the gate passed its first
+    #    check, then got HTTP 000 from the dead API and took the fail-closed
+    #    branch. Every run would have skipped forever while the log looked
+    #    perfectly healthy — the exact failure the comment below the old gate
+    #    warned about, reintroduced by a different route.
+    #
+    #    This machine is now the only writer of second_brain, so there is
+    #    nothing to race. If Syncthing is ever revived for a genuine second
+    #    machine, restore the gate from git history (commit d597e5e) before
+    #    re-enabling this agent.
+
     # nothing changed -> nothing to do
     [ -n "$(git status --porcelain)" ] || exit 0
     git add -A
