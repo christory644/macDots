@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  hostname,
   ...
 }:
 
@@ -68,7 +69,22 @@ let
 in
 {
   launchd.agents.second-brain-autocommit = {
-    enable = true;
+    # OFF on the new Mac until the old one is wiped.
+    #
+    # Both machines run this agent and both share one bidirectionally-synced
+    # .git. Two committers on one repo is what produced 23 .sync-conflict
+    # files in September. During coexistence exactly one machine commits, and
+    # it is the old Mac: writes made here replicate there, get committed, and
+    # the commits come back.
+    #
+    # Declared rather than left to a manual `launchctl bootout`, because every
+    # rebuild reloads the agent — it came back three times on 2026-10-18 and
+    # would have returned unnoticed on the next switch.
+    #
+    # AT CUTOVER: flip this to true, and fix the guard in the script first —
+    # its connected-peer check skips every run when no peer is connected, so
+    # as written it would silently never commit once the old Mac is gone.
+    enable = hostname != "christoryCertifyOSMacbook";
     config = {
       ProgramArguments = [ "${autocommit}" ];
       StartInterval = 900; # every 15 minutes
