@@ -19,16 +19,35 @@ let
   repo = "${config.home.homeDirectory}/repos/second_brain";
 
   autocommit = pkgs.writeShellScript "second-brain-autocommit" ''
-    export PATH="${lib.makeBinPath [ pkgs.git pkgs.coreutils pkgs.findutils ]}"
+    export PATH="${lib.makeBinPath [ pkgs.git pkgs.coreutils pkgs.gnugrep pkgs.curl pkgs.jq ]}"
     cd "${repo}" 2>/dev/null || exit 0
     [ -d .git ] || exit 0
-    # never commit into a repo Syncthing is still assembling: a HEAD that does
-    # not resolve (its objects haven't arrived) or Syncthing temp files inside
-    # .git mean the commit would be built on a partial tree. Every rebuild
-    # reloads this agent (RunAtLoad), so it must refuse on its own rather than
-    # rely on being booted out by hand mid-seed (new Mac, 2026-10-18).
+    # Never commit into a repo Syncthing is still delivering. Every rebuild
+    # reloads this agent (RunAtLoad), so it has to refuse on its own rather
+    # than rely on a manual bootout mid-seed (new Mac, 2026-10-18).
+    # 1. HEAD must resolve: its objects may not have arrived yet.
     git rev-parse -q --verify 'HEAD^{commit}' >/dev/null || exit 0
-    [ -z "$(find .git -name '.syncthing.*.tmp' -print -quit 2>/dev/null)" ] || exit 0
+    # 2. The Syncthing folder holding ~/repos (`repos` in syncthing.nix) must
+    #    owe this machine nothing. .git routinely finishes before the working
+    #    tree, and `git add -A` would then commit every file still in flight as
+    #    a deletion; no on-disk artefact reliably shows that, the folder status
+    #    does. Unreachable API: can't tell, so skip this run. Folder not
+    #    configured (404, e.g. after the migration seed is torn down): proceed.
+    st="$HOME/Library/Application Support/Syncthing/config.xml"
+    if [ -f "$st" ]; then
+      key=$(grep -oE '<apikey>[^<]+' "$st" | cut -d'>' -f2)
+      api="http://127.0.0.1:8384/rest"
+      code=$(curl -s -m 10 -o /dev/null -w '%{http_code}' -H "X-API-Key: $key" "$api/config/folders/repos")
+      case "$code" in
+        200)
+          curl -s -m 30 -H "X-API-Key: $key" "$api/db/status?folder=repos" | jq -e '
+            (.needBytes + .needFiles + .needDeletes) == 0
+            and (.state | IN("syncing", "sync-preparing", "sync-waiting", "error") | not)
+          ' >/dev/null || exit 0 ;;
+        404) ;;
+        *) exit 0 ;;
+      esac
+    fi
     # nothing changed -> nothing to do
     [ -n "$(git status --porcelain)" ] || exit 0
     git add -A
