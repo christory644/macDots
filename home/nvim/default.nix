@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, ... }:
 
 {
   imports = [
@@ -24,6 +24,13 @@
 
   programs.nixvim = {
     enable = true;
+
+    # The flake makes nixvim follow our nixpkgs rather than the one it pins
+    # and tests against, and nixvim warns about that on every rebuild. The
+    # follows is deliberate — one nixpkgs for the whole flake — so state the
+    # source explicitly and stop the warning. If a plugin ever breaks oddly,
+    # this override is the first thing to suspect.
+    nixpkgs.source = pkgs.path;
 
     globals = {
       mapleader = " ";
