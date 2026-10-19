@@ -139,6 +139,30 @@
     nh             # nicer nix rebuild output (nh darwin switch)
     age            # simple file encryption (used to encrypt SSH keys in repo)
 
+    # Go toolchain extras. These lived in ~/go/bin on the old Mac, installed
+    # ad-hoc with `go install`, so a fresh bootstrap recreated none of them.
+    # beads is github.com/gastownhall/beads — the `bd` that gt-personal and
+    # gt-work need, and those two repos have no remote, so the data crossed
+    # tonight while the tool to read it did not.
+    beads
+    gopls          # Go language server
+    delve          # Go debugger (dlv)
+    go-tools       # staticcheck
+    air            # live reload for Go
+    # NOT packaged: swag (swaggo/swag). go-swagger in nixpkgs is a different
+    # project. Still needs `go install github.com/swaggo/swag/cmd/swag@latest`.
+
+    # JDK. `java` resolved via mise, but /usr/libexec/java_home found no
+    # runtime at all, so anything shelling out to java_home (DBeaver,
+    # DbVisualizer, Gradle/Maven wrappers, jenv) failed despite java being
+    # on PATH — a silent failure rather than a missing binary.
+    jdk21
+
+    # Other CLI tools that were on the old Mac via Homebrew
+    google-cloud-sql-proxy
+    poppler        # pdftotext and friends
+    yarn
+
     # Fun
     cowsay
     fortune
@@ -156,13 +180,32 @@
         tilesize = 48;
         magnification = true;
         orientation = "bottom";
+
+        # Hot corners OFF, all four. 1 = no action. These were never declared,
+        # so the new Mac picked up the macOS default of Quick Note on the
+        # bottom-right and fired it whenever the pointer reached the corner.
+        wvous-tl-corner = 1;
+        wvous-tr-corner = 1;
+        wvous-bl-corner = 1;
+        wvous-br-corner = 1;
+      };
+
+      # ── Trackpad ───────────────────────────────────────────────────
+      # Tap to click. NSGlobalDomain's "com.apple.mouse.tapBehavior" (below)
+      # is NOT what modern macOS reads for the built-in trackpad — `Clicking`
+      # in com.apple.AppleMultitouchTrackpad is. The old Mac had tap-to-click
+      # because it was set by hand years ago; the declaration never worked.
+      trackpad = {
+        Clicking = true;
+        TrackpadRightClick = true;
       };
 
       # ── Finder ─────────────────────────────────────────────────────
       finder = {
         AppleShowAllExtensions = true;
         AppleShowAllFiles = true;      # show hidden files
-        FXPreferredViewStyle = "clmv"; # column view
+        FXPreferredViewStyle = "Nlsv"; # list view (the old Mac's actual habit;
+                                       # this was declared as column and never lived with)
         ShowPathbar = true;
         ShowStatusBar = true;
         ShowExternalHardDrivesOnDesktop = false;
@@ -229,11 +272,43 @@
           NewWindowTarget = "PfLo";
           NewWindowTargetPath = "file:///Users/${username}/Downloads/";
         };
+        # Tap to click on an external/Bluetooth trackpad too. The `trackpad`
+        # block above only covers the built-in one.
+        "com.apple.driver.AppleBluetoothMultitouch.trackpad" = {
+          Clicking = true;
+        };
       };
     };
+
+    # ── Keyboard ─────────────────────────────────────────────────────
+    # Caps Lock → Escape. This was set by hand on the old Mac through
+    # System Settings → Modifier Keys, which `defaults export` does not
+    # capture, so it was invisible to the settings audit and never crossed.
+    keyboard = {
+      enableKeyMapping = true;
+      remapCapsLockToEscape = true;
+    };
+
     # Required for nix-darwin
     stateVersion = 6;
   };
+
+  # Spotlight's ⌘Space is freed for Raycast. This has to MERGE rather than
+  # write: AppleSymbolicHotKeys is one dictionary holding every shortcut, and
+  # `defaults write` on it replaces the lot — this machine has 19 entries, 3
+  # with custom bindings, which a wholesale write would silently reset.
+  # `-dict-add` adds the two keys and leaves the rest alone.
+  #   64 = Show Spotlight search, 65 = Show Finder search window
+  # Activation runs as root in this nix-darwin, so the user-scoped `defaults`
+  # calls go through `sudo -u`; writing them as root would land in root's
+  # preferences and silently do nothing for him.
+  system.activationScripts.postActivation.text = ''
+    for id in 64 65; do
+      sudo -u ${username} /usr/bin/defaults write com.apple.symbolichotkeys \
+        AppleSymbolicHotKeys -dict-add "$id" '{ enabled = 0; }' || true
+    done
+    sudo -u ${username} /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u || true
+  '';
 
   networking.hostName = hostname;
   networking.localHostName = hostname;   # Bonjour .local name
