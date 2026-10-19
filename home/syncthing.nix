@@ -63,6 +63,10 @@ let
     result
     *.log
     .DS_Store
+    # ai-coach churns hard enough here to destabilize fseventsd
+    /ai-coach/.claude/worktrees
+    /ai-coach/.scratch
+    /ai-coach/coverage
   '';
 
   # Device IDs for both machines (Actions → Show ID in each Syncthing UI).
