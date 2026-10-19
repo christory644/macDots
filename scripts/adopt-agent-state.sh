@@ -24,7 +24,7 @@ OLD="${1:-christopherstory}"
 NEW="$(id -un)"
 [ "$OLD" != "$NEW" ] || { echo "Old and new usernames are both '$NEW' — nothing to do."; exit 0; }
 
-linked=0 merged=0 skipped=0
+linked=0 merged=0 skipped=0 live=0
 for cfg in "$HOME"/.claude "$HOME"/.claude-personal "$HOME"/.claude-work "$HOME"/.claude-work-sub; do
   P="$cfg/projects"
   [ -d "$P" ] || continue
@@ -38,6 +38,13 @@ for cfg in "$HOME"/.claude "$HOME"/.claude-personal "$HOME"/.claude-work "$HOME"
     if [ -L "$n" ]; then
       skipped=$((skipped + 1)); continue
     elif [ -d "$n" ]; then
+      # a transcript written in the last 10 minutes belongs to a live session —
+      # quite possibly the one running this script. Moving it would pull the
+      # file out from under its writer; leave the folder for a later run.
+      if [ -n "$(find "$n" -name '*.jsonl' -mmin -10 -print -quit)" ]; then
+        echo "  skipped (live session): ${cfg##*/}/projects/$new — re-run with that agent quit" >&2
+        live=$((live + 1)); continue
+      fi
       # this Mac already started a history here; fold it in without clobbering
       (cd "$n" && find . -mindepth 1 -type f -print0) | while IFS= read -r -d '' f; do
         f="${f#./}"
@@ -59,5 +66,5 @@ for cfg in "$HOME"/.claude "$HOME"/.claude-personal "$HOME"/.claude-work "$HOME"
   done
 done
 
-echo "linked $linked project folders ($merged merged first), $skipped already linked."
+echo "linked $linked project folders ($merged merged first), $skipped already linked, $live left for a live session."
 echo "Resume old sessions from the matching directory under /Users/$NEW with --resume <id>."
