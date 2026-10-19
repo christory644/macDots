@@ -1,6 +1,6 @@
 # Migrating to the new MacBook
 
-The executable runbook for standing up the new work MacBook (256GB) and retiring
+The executable runbook for standing up the new work MacBook (128GB) and retiring
 this one. Decisions baked in (interview 2026-08-30): coexistence then targeted
 wipe; hybrid keychain (iCloud + archive copy); Arc + Chrome profiles move;
 iCloud Photos carries the photo library; local DBs are recreated, not dumped;
@@ -282,23 +282,35 @@ Then pull from the new Mac:
     - [ ] Keychain archive opens in Keychain Access with the old password.
     - [ ] Photos: iCloud library downloading (spot-check recent photos exist).
 
-## 7. Week one — use the 256GB
+## 7. Week one — use the 128GB
+
+> **The machine is 128GB, not 256GB.** Measured on 2026-10-18 with
+> `sysctl -n hw.memsize` → 137438953472 (128 GiB), 18 CPUs. Every planning
+> document said 256GB; none of them was checked against the hardware. That is
+> still a ~7x jump from the old M3/18GB, and everything below is sized for what
+> the machine actually has.
 
 Per-host Ollama tuning is automatic (f16 KV cache, 4 parallel requests, 3
-loaded models, 1h keep-alive — `home/ollama.nix`). Worth pulling at this tier
-(sizes are q4 defaults; all fit with room to spare):
+loaded models, 1h keep-alive — `home/ollama.nix`). Sizes are q4 defaults:
 
 | Model | ~RAM | Why |
 |---|---|---|
 | `qwen3-coder:30b` | ~19GB | fast MoE daily-driver for local coding |
 | `gpt-oss:120b` | ~65GB | strong general model, MoE so still quick |
-| `qwen3:235b-a22b` | ~140GB | the quality tier — impossible on 18GB |
 | `nomic-embed-text` | ~1GB | local embeddings |
+| ~~`qwen3:235b-a22b`~~ | ~140GB | **does NOT fit in 128GB** — don't pull it at q4 |
 
-Try two loaded at once (`ollama ps`) — that's the point of the RAM. Also now
-practical with `mlx-lm` (installed via brew): LoRA fine-tuning of 30B-class
-models (`mlx_lm.lora --model mlx-community/… --train --data …`) and full-BF16
-inference of 70B models. Optional: trial Headroom (`home/headroom.nix`).
+`qwen3:235b-a22b` was listed as "the quality tier" on the 256GB assumption. At
+~140GB it exceeds this machine; a smaller quantisation may fit, but check the
+published size against free RAM before downloading rather than trusting this
+table twice.
+
+Try two loaded at once (`ollama ps`) — that's the point of the RAM, though
+`gpt-oss:120b` at ~65GB leaves room for a 30B-class companion, not a second
+120B. Also now practical with `mlx-lm` (installed via brew): LoRA fine-tuning
+of 30B-class models (`mlx_lm.lora --model mlx-community/… --train --data …`)
+and full-BF16 inference of 70B models. Optional: trial Headroom
+(`home/headroom.nix`).
 
 ## 8. Wipe and return the old Mac (targeted removal)
 

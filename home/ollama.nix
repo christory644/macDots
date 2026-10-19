@@ -3,13 +3,18 @@
 let
   # Ollama tuning — single source of truth for both the launchd server and
   # interactive shells (home.sessionVariables). Per-host because the two
-  # machines differ ~14x in unified memory.
+  # machines differ ~7x in unified memory.
   perHost =
     if hostname == "christoryCertifyOSMacbook" then {
-      # 256GB unified memory: full-precision KV cache, real parallelism.
+      # 128GB unified memory (measured: hw.memsize, 2026-10-18 — the planning
+      # docs said 256GB and were wrong). Full-precision KV cache, real
+      # parallelism, but not unlimited: see the model table in docs/migration.md.
       OLLAMA_KV_CACHE_TYPE = "f16";
       OLLAMA_KEEP_ALIVE = "1h";       # RAM is plentiful — keep models hot
       OLLAMA_NUM_PARALLEL = "4";
+      # A cap, not a reservation; ollama evicts as it needs room. Three small
+      # models co-reside comfortably, but two 65GB-class ones do not fit in
+      # 128GB — the limit in practice is model size, not this number.
       OLLAMA_MAX_LOADED_MODELS = "3";
     } else {
       # M3 18GB: RAM limited.
