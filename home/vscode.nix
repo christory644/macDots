@@ -1,8 +1,8 @@
-{ pkgs, lib, username, theme, nix-vscode-extensions, ... }:
+{ pkgs, lib, username, theme, ... }:
 
 let
   # Marketplace extensions (for packages not in nixpkgs)
-  marketplace = nix-vscode-extensions.extensions.${pkgs.system}.vscode-marketplace;
+  marketplace = pkgs.vscode-marketplace;  # via nix-vscode-extensions overlay (see flake.nix)
 
   # Shared settings for both VS Code and Cursor
   sharedSettings = {

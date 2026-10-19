@@ -420,6 +420,7 @@ whatever already completed.
   (`vscode-extension-rangav-vscode-thunder-client` at the time of writing).
   `nixpkgs.config.allowUnfree` in `hosts/macbook/default.nix` does not reach
   the package set behind `nix-vscode-extensions`. Confirm the lock is the
-  cause by stashing it and re-evaluating; the fix is to drop the extension
-  from `home/vscode.nix` or give that input's package set its own
-  `allowUnfree`. Never commit a lock you have not built.
+  cause by stashing it and re-evaluating. Fixed by consuming
+  nix-vscode-extensions as an overlay (`flake.nix`), so `allowUnfree` reaches
+  it; if it recurs, check that overlay is still in place. Never commit a lock
+  you have not built.

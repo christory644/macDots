@@ -60,6 +60,19 @@
           # Overlay: fix packages that fail to build from source on macOS
           {
             nixpkgs.overlays = [
+              # VS Code marketplace sets (pkgs.vscode-marketplace, pkgs.open-vsx).
+              # Consumed as an overlay rather than via the flake's own
+              # `extensions.<system>` output on purpose: that output builds
+              # against nix-vscode-extensions' OWN nixpkgs instance, whose config
+              # is empty, so `nixpkgs.config.allowUnfree` below does not reach it.
+              # The set also substitutes nixpkgs' own derivation for extensions
+              # nixpkgs packages specially ("fixes"), and those carry real license
+              # metadata — so an extension like rangav.vscode-thunder-client
+              # becomes an eval-time unfree refusal the moment nixpkgs starts
+              # packaging it. As an overlay, `pkgsWithFixes` defaults to this
+              # nixpkgs, and allowUnfree applies.
+              nix-vscode-extensions.overlays.default
+
               (final: prev: {
                 direnv = prev.direnv.overrideAttrs (old: {
                   doCheck = false;  # test suite hangs on macOS (checkPhase >1hr)
