@@ -14,6 +14,12 @@
 # visible to `ps` on this machine. That is the only interface the tool offers
 # short of 20 interactive prompts; it is local and momentary.
 #
+# Expect GUI password dialogs partway through: items created by an APP (rather
+# than by /usr/bin/security) do not trust /usr/bin/security, so each one raises
+# "security wants to use the login keychain" and blocks until answered. Items
+# the agents stashed — the ones we actually came for — copy silently. Denying a
+# dialog is safe; that item is just skipped.
+#
 # Usage: carry-keychain-items.sh [/path/to/output.keychain-db]
 set -euo pipefail
 
@@ -40,15 +46,21 @@ while IFS=$'\t' read -r svc acct; do
   case "$svc" in
     *"Safe Storage"*|com.apple.*|AirPlay*|FMFDStoreController) continue ;;
   esac
-  if pw=$(security find-generic-password -s "$svc" -a "$acct" -w 2>/dev/null); then
+  # Print BEFORE reading. Items an app created (rather than /usr/bin/security)
+  # raise a GUI "security wants to use the login keychain" dialog, and the read
+  # blocks until it is answered — so without this line the script looks hung on
+  # an unnamed item. Deny is fine for anything you don't need; it just lands in
+  # the failed count. stderr is deliberately NOT suppressed here.
+  printf '  reading: %s (%s) ... ' "$svc" "$acct"
+  if pw=$(security find-generic-password -s "$svc" -a "$acct" -w); then
     if security add-generic-password -s "$svc" -a "$acct" -w "$pw" -U "$OUT" 2>/dev/null; then
-      copied=$((copied+1)); echo "  copied: $svc ($acct)"
+      copied=$((copied+1)); echo "copied"
     else
-      failed=$((failed+1)); echo "  FAILED to write: $svc ($acct)"
+      failed=$((failed+1)); echo "FAILED to write"
     fi
     unset pw
   else
-    failed=$((failed+1)); echo "  could not read: $svc ($acct)"
+    failed=$((failed+1)); echo "skipped (denied or unreadable)"
   fi
 done < <(
   security dump-keychain "$HOME/Library/Keychains/login.keychain-db" 2>/dev/null \
