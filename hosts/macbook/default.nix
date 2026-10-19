@@ -334,53 +334,14 @@
     stateVersion = 6;
   };
 
-  # Spotlight's ⌘Space is freed for Raycast. This has to MERGE rather than
-  # write: AppleSymbolicHotKeys is one dictionary holding every shortcut, and
-  # `defaults write` on it replaces the lot — this machine has 19 entries, 3
-  # with custom bindings, which a wholesale write would silently reset.
-  # `-dict-add` adds the two keys and leaves the rest alone.
-  #   64 = Show Spotlight search, 65 = Show Finder search window
-  # Activation runs as root in this nix-darwin, so the user-scoped `defaults`
-  # calls go through `sudo -u`; writing them as root would land in root's
-  # preferences and silently do nothing for him.
-  system.activationScripts.postActivation.text = ''
-    hk() {
-      sudo -u ${username} /usr/bin/defaults write com.apple.symbolichotkeys \
-        AppleSymbolicHotKeys -dict-add "$1" "$2" || true
-    }
-
-    # Mission Control / Spaces — off, AeroSpace owns these
-    hk 32  '{enabled = 0; value = {parameters = (65535, 126, 8650752); type = standard;};}'
-    hk 33  '{enabled = 0; value = {parameters = (65535, 125, 8650752); type = standard;};}'
-    hk 34  '{enabled = 0;}'
-    hk 35  '{enabled = 1; value = {parameters = (65535, 125, 8781824); type = standard;};}'
-    hk 36  '{enabled = 0; value = {parameters = (65535, 103, 8388608); type = standard;};}'
-    hk 37  '{enabled = 1; value = {parameters = (65535, 103, 8519680); type = standard;};}'
-    hk 44  '{enabled = 0;}'
-    hk 45  '{enabled = 0;}'
-    hk 46  '{enabled = 0;}'
-    hk 48  '{enabled = 0;}'
-    hk 49  '{enabled = 0;}'
-    hk 52  '{enabled = 0; value = {parameters = (100, 2, 1572864); type = standard;};}'
-
-    # 64/65 — Spotlight and Finder search. OFF so Raycast owns cmd+space.
-    hk 64  '{enabled = 0; value = {parameters = (32, 49, 1048576); type = standard;};}'
-    hk 65  '{enabled = 0; value = {parameters = (32, 49, 1572864); type = standard;};}'
-
-    # 79/81 — Move left/right a space. OFF; AeroSpace binds these itself.
-    hk 79  '{enabled = 0; value = {parameters = (65535, 123, 8650752); type = standard;};}'
-    hk 81  '{enabled = 0; value = {parameters = (65535, 124, 8650752); type = standard;};}'
-    hk 82  '{enabled = 1; value = {parameters = (65535, 124, 8781824); type = standard;};}'
-
-    hk 118 '{enabled = 0; value = {parameters = (65535, 18, 262144); type = standard;};}'
-    hk 190 '{enabled = 0; value = {parameters = (113, 12, 8388608); type = standard;};}'
-
-    sudo -u ${username} /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u || true
-
-    # Dock and Finder re-read their preferences only on restart.
-    sudo -u ${username} /usr/bin/killall Dock 2>/dev/null || true
-    sudo -u ${username} /usr/bin/killall Finder 2>/dev/null || true
-  '';
+  # Keyboard shortcuts carried from the old Mac. The merge and the value
+  # types are both non-obvious, so they live in a script: see
+  # hosts/macbook/symbolichotkeys.py for why shell `defaults -dict-add`
+  # cannot do this correctly.
+  #
+  # preActivation, not postActivation, for the reason documented on the login
+  # shell hook below: Homebrew runs at the very end of activation, so a single
+  # failing cask aborts before postActivation. That has already happened twice.
 
   networking.hostName = hostname;
   networking.localHostName = hostname;   # Bonjour .local name
@@ -424,6 +385,15 @@
   #
   # Idempotent — only writes when the value differs.
   system.activationScripts.preActivation.text = ''
+    # Keyboard shortcuts carried from the old Mac. The merge and the value
+    # types are both non-obvious, so they live in a script — see
+    # hosts/macbook/symbolichotkeys.py for why shell `defaults -dict-add`
+    # cannot do this correctly.
+    sudo -u ${username} ${pkgs.python3}/bin/python3 ${./symbolichotkeys.py} || true
+    sudo -u ${username} /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u || true
+    sudo -u ${username} /usr/bin/killall Dock 2>/dev/null || true
+    sudo -u ${username} /usr/bin/killall Finder 2>/dev/null || true
+
     loginShell=/bin/zsh
     current=$(dscl . -read /Users/${username} UserShell 2>/dev/null | awk '{print $2}')
     if [ "$current" != "$loginShell" ]; then
