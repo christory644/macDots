@@ -342,6 +342,11 @@
   programs.fzf = {
     enable = true;
     enableZshIntegration = true;
+    # Atuin owns Ctrl-R. Both bind it and Atuin already won by load order
+    # (its integration is sourced after fzf's), so this changes nothing at
+    # the prompt — it just says which was meant, instead of leaving it to
+    # the order the two happen to be sourced in.
+    historyWidget.zsh.command = "";
   };
 
   # Direnv (per-directory environment variables)
