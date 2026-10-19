@@ -141,10 +141,11 @@
 
     # Go toolchain extras. These lived in ~/go/bin on the old Mac, installed
     # ad-hoc with `go install`, so a fresh bootstrap recreated none of them.
-    # beads is github.com/gastownhall/beads — the `bd` that gt-personal and
-    # gt-work need, and those two repos have no remote, so the data crossed
-    # tonight while the tool to read it did not.
-    beads
+    # NOT beads: nixpkgs has it (github.com/gastownhall/beads, the `bd` that
+    # gt-personal and gt-work need), but Homebrew's gastown tap already ships
+    # bd alongside gastown itself, and nix paths precede /opt/homebrew on PATH.
+    # Declaring it here silently shadowed the tap's 1.2.2 with nixpkgs' 1.3.0 —
+    # a version swap under a tool that ships them as a pair.
     gopls          # Go language server
     delve          # Go debugger (dlv)
     go-tools       # staticcheck
@@ -159,7 +160,8 @@
 
     # Other CLI tools that were on the old Mac via Homebrew
     google-cloud-sql-proxy
-    poppler        # pdftotext and friends
+    poppler-utils  # pdftotext and friends. NOT `poppler`, which is the
+                   # library only — declaring that gave no pdftotext at all.
     yarn
 
     # Fun
