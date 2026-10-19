@@ -52,16 +52,20 @@ files = d.get("needFiles", 0) + d.get("needDeletes", 0)
 print("%s %d %d" % (d.get("state", "?"), need, files))')"
   read -r state need files <<<"$line"
 
-  # completion the PEER still owes us; 100 means it has nothing left to send
-  peerpct="$(q "/rest/db/completion?folder=$f&device=$PEER" | python3 -c '
+  # how complete the PEER's copy is; 100 means it has nothing left to pull from
+  # us. Slow on a huge folder (repos is ~760k files), so it gets its own longer
+  # timeout, and an empty answer reads as "?" (never settled) instead of a crash.
+  peerpct="$(curl -s -m 60 -H "X-API-Key: $API" \
+      "$GUI/rest/db/completion?folder=$f&device=$PEER" | python3 -c '
 import json, sys
-print("%.1f" % float(json.load(sys.stdin).get("completion", 0)))')"
+try: print("%.1f" % float(json.load(sys.stdin).get("completion", 0)))
+except ValueError: print("?")')"
 
   printf "%-16s %-14s %7s  %7.2f GB  %7s\n" \
     "$f" "$state" "$peerpct" "$(python3 -c "print($need/1e9)")" "$files"
 
   # numeric comparison — the API returns 100 as often as 100.0
-  ok="$(python3 -c "print(1 if '$state'=='idle' and $need==0 and $files==0 and float('$peerpct')>=100 else 0)")"
+  ok="$(python3 -c "print(1 if '$state'=='idle' and $need==0 and $files==0 and '$peerpct'!='?' and float('$peerpct')>=100 else 0)")"
   [ "$ok" = 1 ] || settled=0
 done
 
