@@ -270,8 +270,12 @@ Then pull from the new Mac:
           `christoryCertifyOSMacbook`.
     - [ ] Work stack: certifyos repos cloned, `certify-local` compose stack up,
           `pulumi preview` (or equivalent) succeeds against ADC.
-    - [ ] Agents: `claude-personal` and `claude-work` launch; memories present
-          (spot-check `MEMORY.md` recall); codex launches with history.
+    - [ ] Agents: run `scripts/adopt-agent-state.sh` first — the username
+          changed (`christopherstory` → `christory`), and Claude keys both
+          transcripts and memory by absolute path, so without it every
+          project starts empty. Then `claude-personal` and `claude-work`
+          launch; memories present (spot-check `MEMORY.md` recall); codex
+          launches with history.
     - [ ] Arc: spaces + pinned tabs intact. Chrome: profile + extensions.
     - [ ] Comms: Slack/email/calendar signed in and notifying.
     - [ ] Syncthing: every folder "Up to Date" on both machines.
