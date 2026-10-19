@@ -77,6 +77,20 @@
                 direnv = prev.direnv.overrideAttrs (old: {
                   doCheck = false;  # test suite hangs on macOS (checkPhase >1hr)
                 });
+
+                # atuin's e2e suite drives a real PTY and asserts that output
+                # arrives within a timeout, which races under a parallel nix
+                # build: filtered_commands_leave_no_captured_output fails with
+                # "timed out waiting for the last command's captured output;
+                # captured: []". An EMPTY capture — nothing arrived in time,
+                # rather than the wrong thing arriving — so it is a timing
+                # assertion, not a broken binary. A `nix flake update` on
+                # 2026-10-19 pulled 18.23.0 and this failed the entire system
+                # build, taking hm_..zshrc, home-manager-path, system-path and
+                # darwin-system down with it.
+                atuin = prev.atuin.overrideAttrs (old: {
+                  doCheck = false;
+                });
               })
             ];
           }
