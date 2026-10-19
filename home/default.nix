@@ -8,6 +8,7 @@
     ./shell/zsh.nix
     ./shell/starship.nix
     ./git.nix
+    ./gh.nix
     ./ssh.nix
     ./tmux.nix
     ./terminal/ghostty.nix
