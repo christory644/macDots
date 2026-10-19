@@ -47,9 +47,30 @@ let
     code=$(curl -s -m 10 -o /dev/null -w '%{http_code}' -H "X-API-Key: $key" "$api/config/folders/repos")
     case "$code" in
       200)
-        curl -s -m 10 -H "X-API-Key: $key" "$api/system/connections" \
-          | jq -e '[.connections[] | select(.connected)] | length > 0' >/dev/null \
-          || skip "no Syncthing peer connected, so the repos folder's state is unknown"
+          # A peer only has to be connected if one is actually EXPECTED: the
+          # folder's device list, minus ourselves, minus any device that is
+          # paused or no longer configured. Empty set means nothing to wait for.
+          #
+          # Requiring a live peer unconditionally — as the first version did —
+          # fails exactly when it matters. Once the old Mac is paused or gone,
+          # no peer ever connects again, so every run skips forever while the
+          # log looks perfectly healthy.
+          #
+          # NOTE the jq: `has("paused") and .paused == false`, never
+          # `.paused // x`. jq's // treats FALSE as empty, so the shorthand
+          # reports every unpaused device as absent — failing open on precisely
+          # the peers this is meant to wait for.
+          me=$(curl -s -m 10 -H "X-API-Key: $key" "$api/system/status" | jq -r '.myID // empty')
+          folderdevs=$(curl -s -m 10 -H "X-API-Key: $key" "$api/config/folders/repos" \
+                       | jq -r --arg me "$me" '[.devices[].deviceID | select(. != $me)]')
+          expected=$(curl -s -m 10 -H "X-API-Key: $key" "$api/config/devices" | jq --argjson fd "$folderdevs" '
+            [ .[] | select(.deviceID as $d | $fd | index($d))
+                  | select(has("paused") and .paused == false) ] | length')
+          if [ "''${expected:-1}" -gt 0 ]; then
+            curl -s -m 10 -H "X-API-Key: $key" "$api/system/connections" \
+              | jq -e '[.connections[] | select(.connected)] | length > 0' >/dev/null \
+              || skip "$expected unpaused peer(s) share this folder and none is connected"
+          fi
         curl -s -m 30 -H "X-API-Key: $key" "$api/db/status?folder=repos" | jq -e '
           (.needBytes + .needFiles + .needDeletes) == 0
           and (.state | IN("syncing", "sync-preparing", "sync-waiting", "error") | not)
@@ -69,22 +90,18 @@ let
 in
 {
   launchd.agents.second-brain-autocommit = {
-    # OFF on the new Mac until the old one is wiped.
+    # ON here. This machine is the leader now; the old Mac is a dormant
+    # escape hatch, so if this agent does not commit second_brain, nothing
+    # does.
     #
-    # Both machines run this agent and both share one bidirectionally-synced
-    # .git. Two committers on one repo is what produced 23 .sync-conflict
-    # files in September. During coexistence exactly one machine commits, and
-    # it is the old Mac: writes made here replicate there, get committed, and
-    # the commits come back.
+    # Measured before deciding, because the assumption was that agents commit
+    # their own work and this was only a safety net: over 90 days second_brain
+    # took 35 commits, 29 of them from this agent. It writes 82% of the
+    # vault's history. Dropping it would have stopped 4 commits in 5.
     #
-    # Declared rather than left to a manual `launchctl bootout`, because every
-    # rebuild reloads the agent — it came back three times on 2026-10-18 and
-    # would have returned unnoticed on the next switch.
-    #
-    # AT CUTOVER: flip this to true, and fix the guard in the script first —
-    # its connected-peer check skips every run when no peer is connected, so
-    # as written it would silently never commit once the old Mac is gone.
-    enable = hostname != "christoryCertifyOSMacbook";
+    # The guard above decides whether it is safe to run; see the note on the
+    # expected-peer set. Exactly one machine should have this enabled.
+    enable = hostname == "christoryCertifyOSMacbook";
     config = {
       ProgramArguments = [ "${autocommit}" ];
       StartInterval = 900; # every 15 minutes
