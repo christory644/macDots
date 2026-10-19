@@ -38,11 +38,24 @@ let
     };
   };
 
-  workRemotes = [
-    "git@github.com-chris-certifyos:CertifyOS/**"
-    "git@github.com:CertifyOS/**"
-    "https://github.com/CertifyOS/**"
-  ];
+  # The owners that belong to the work account. Single source of truth: both
+  # the url rewrites and the identity includes below are generated from it, so
+  # adding an org or a repo owner is a one-line change that cannot drift.
+  #
+  # chris-certifyos is here alongside the org because the work USER owns repos
+  # too (certifyos-auto-kanban). An owner rule written as "CertifyOS only"
+  # silently routes those to the personal key.
+  workOwners = [ "CertifyOS" "chris-certifyos" ];
+
+  workAlias = "git@github.com-chris-certifyos:";
+  persAlias = "git@github.com-christory644:";
+
+  # Every spelling of a work remote that can end up written in .git/config.
+  workRemotes = builtins.concatMap (o: [
+    "${workAlias}${o}/**"
+    "git@github.com:${o}/**"
+    "https://github.com/${o}/**"
+  ]) workOwners;
 in
 {
   programs.git = {
@@ -78,16 +91,17 @@ in
     settings = {
       # Owner decides the key. https is folded into ssh too, so git never falls
       # back to a token-based transport.
-      url = {
-        "git@github.com-chris-certifyos:CertifyOS/".insteadOf = [
-          "git@github.com:CertifyOS/"
-          "https://github.com/CertifyOS/"
-        ];
-        "git@github.com-christory644:".insteadOf = [
-          "git@github.com:"
-          "https://github.com/"
-        ];
-      };
+      url =
+        # One rewrite per work owner, plus a catch-all onto the personal alias.
+        # insteadOf takes the LONGEST matching prefix, so the owner-specific
+        # rules outrank the catch-all beneath them.
+        (builtins.listToAttrs (map (o: {
+          name = "${workAlias}${o}/";
+          value.insteadOf = [ "git@github.com:${o}/" "https://github.com/${o}/" ];
+        }) workOwners))
+        // {
+          ${persAlias}.insteadOf = [ "git@github.com:" "https://github.com/" ];
+        };
 
       # Default identity; the includes above override it for CertifyOS remotes.
       user = {
