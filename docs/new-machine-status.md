@@ -1,8 +1,35 @@
 # New MacBook — what's done, what's left
 
 Companion to `docs/migration.md` (the runbook). The runbook says how; this says
-where we actually are. Last verified **2026-09-10**, on
-`christoryCertifyOSMacbook`.
+where we actually are. §1–§6 last verified **2026-09-10**, on
+`christoryCertifyOSMacbook`; §0 re-checked **2026-10-18** from the old Mac
+(new Mac was closed, so its side is unverified).
+
+## 0. Since then (2026-10-18)
+
+**The seed is no longer complete.** Five weeks of daily use on the old Mac
+outran a new Mac that is mostly closed. At its last check-in the new Mac was
+missing ~33 GB / ~430k items:
+
+| Folder | New Mac has | Missing | Mostly |
+|---|---|---|---|
+| repos | 50% | 24.9 GB, 396k items | agent worktrees in cartograph (11.5 GB) and agentOS (336k files, kept syncing by choice), `undefined-behavior-records/bands/vesperance` audio (6.3 GB), `second_brain` objects (3.9 GB) |
+| movies | 11.5% | 7.8 GB | `codex-mv`, `claude-mv` |
+| claude-work-sub | ~57% | 0.2 GB | live session state; normal while agents run |
+
+The only fix is time with both machines awake on the same network, until
+`scripts/sync-status.sh` exits 0.
+
+Old Mac housekeeping done that day: five weeks of built-but-uncommitted
+macDots config committed and pushed (flake update + VS Code overlay fix,
+gh-stack, game-dev casks, ai-coach ignore); `sync-status.sh` fixed to stop
+crashing while `repos` scans; the three non-git writing projects
+(`a-contract-of-ash-and-ink`, `new-book`, `resume`) given private remotes
+under christory644. Still synced-only, not pushed: unpushed branches in 13
+repos and no-remote `agent-workspace`, `certiflag`, `tonttu`, `second_brain`.
+
+Not yet done on the old Mac: Raycast export (no `.rayconfig` anywhere), and
+the `second_brain` bundle is from 2026-08-30.
 
 **Why it felt half-baked:** the original bootstrap died silently. On a fresh Mac
 `rustc` isn't on PATH, so `bootstrap.sh` took its rust branch and called
