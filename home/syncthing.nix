@@ -134,7 +134,23 @@ let
 in
 {
   services.syncthing = {
-    enable = true;
+    # DISABLED 2026-10-19. The bulk migration is done — every folder reached
+    # needFiles=0 — and from that point continuous bidirectional replication
+    # between a machine being actively repaired and a machine being retired
+    # caused more damage than it prevented: 327 .sync-conflict-* files (20 of
+    # them inside .git/, conflict-copying live worktree index files), a blanket
+    # *.log rule that silently dropped 75 real state files, a `git worktree
+    # repair` on this Mac that propagated back and broke every worktree on the
+    # other one, ~1,100 conflicts from the claude-work merge, and a project-slug
+    # symlink scheme that exists only so two machines can share one folder —
+    # which, pointing the wrong way, truncated tool-results. It also blocked the
+    # second_brain autocommit, which refuses to run while an unpaused peer
+    # exists. Remaining transfers are surgical and go over rsync/ssh instead.
+    #
+    # Everything below is kept deliberately. To revive for a genuine second
+    # machine: set this true, put that machine's ID in `deviceIds`, rebuild on
+    # both. Review the .stignore rules first — `*.log` was the costly one.
+    enable = false;
     settings = {
       options.urAccepted = -1; # decline anonymous usage reporting
       # Only the peer is declared — a machine never lists itself as a device.
