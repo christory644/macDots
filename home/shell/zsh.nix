@@ -122,6 +122,20 @@
       # shell
       resource_zsh = "source $HOME/.zshrc";
 
+      # caffeinate -i on the agent entrypoints: a long agentic run should not die
+      # because the machine idled out. `-i` asserts PreventUserIdleSystemSleep
+      # ONLY — the display still sleeps on schedule and the lock screen still
+      # engages, so this does not weaken the screen-lock policy, just the
+      # power-saving half. Video playback (the Arc PiP trick) asserts
+      # NoDisplaySleep as well, which is the part that actually defeats the lock;
+      # this deliberately does not.
+      #
+      # caffeinate execs the command and releases the assertion when it exits, so
+      # there is no lingering "awake" state after a session ends and nothing to
+      # remember to turn off. Verify any time with `pmset -g assertions`.
+      #
+      # NOT applied to gt-*/gc-*: those attach to a tmux session, so the
+      # assertion would drop on detach while the real work carries on inside.
       # claude code — separate personal/work configs. Both run direct to Anthropic.
       #
       # HEADROOM PROXY (draft, currently OFF): personal was meant to route through the
@@ -134,7 +148,7 @@
       #     Code drops the context-1m beta header through a proxy and silently caps at 200k, so
       #     pin the 1M-tagged model to keep the full window (forces opus as the personal default;
       #     switching models mid-session via /model loses the [1m] tag).
-      claude-personal = "CLAUDE_CONFIG_DIR=~/.claude-personal command claude --enable-auto-mode --allow-dangerously-skip-permissions";
+      claude-personal = "CLAUDE_CONFIG_DIR=~/.claude-personal caffeinate -i command claude --enable-auto-mode --allow-dangerously-skip-permissions";
       # claude-work — the platform (API) account — is being retired now that
       # work is on a subscription, but the alias STAYS until its merge into
       # claude-work-sub actually completes. The first attempt did not: copying
@@ -145,14 +159,14 @@
       # Nothing was lost — .claude-work still holds every one — but removing
       # this alias would hide history that has not landed yet.
       # Finish the merge with the peer paused, then retire this.
-      claude-work = "CLAUDE_CONFIG_DIR=~/.claude-work command claude --enable-auto-mode --allow-dangerously-skip-permissions";
-      claude-work-sub = "CLAUDE_CONFIG_DIR=~/.claude-work-sub command claude --enable-auto-mode --allow-dangerously-skip-permissions";
+      claude-work = "CLAUDE_CONFIG_DIR=~/.claude-work caffeinate -i command claude --enable-auto-mode --allow-dangerously-skip-permissions";
+      claude-work-sub = "CLAUDE_CONFIG_DIR=~/.claude-work-sub caffeinate -i command claude --enable-auto-mode --allow-dangerously-skip-permissions";
       claude = "claude-work-sub";
 
       # codex CLI — separate personal/work configs (CODEX_HOME mirrors CLAUDE_CONFIG_DIR)
       # Desktop app (codex-app cask) uses ~/.codex by default — log in once with work account.
-      codex-personal = "CODEX_HOME=~/.codex-personal command codex";
-      codex-work = "CODEX_HOME=~/.codex-work command codex";
+      codex-personal = "CODEX_HOME=~/.codex-personal caffeinate -i command codex";
+      codex-work = "CODEX_HOME=~/.codex-work caffeinate -i command codex";
       codex = "codex-work";
 
       # gastown and gas city — functions are in initContent (need tmux logic)
