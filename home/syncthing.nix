@@ -22,6 +22,16 @@ let
   home = config.home.homeDirectory;
 
   claudeIgnore = ''
+    // Negations come FIRST: Syncthing applies the first matching pattern, not
+    // the most specific one, so anything to keep must appear above the rule
+    // that would otherwise drop it.
+    //
+    // `*.log` used to live in the exclude list below. It was too blunt — on
+    // migration it silently dropped 75 real state files (orchestrator
+    // events.log and briefs, the review queue, chief run records) purely
+    // because they end in .log. Name the actual noise instead.
+    !orchestrator
+    !**/events.log
     // regenerable caches, logs, local backups
     cache
     paste-cache
@@ -29,7 +39,8 @@ let
     telemetry
     debug
     backups
-    *.log
+    daemon.log
+    *-debug.log
     // live databases — never sync an open DB
     *.sqlite
     *.sqlite-*

@@ -10,10 +10,19 @@
 # looks in them: `claude --resume <id>` says the session doesn't exist and every
 # project starts with no memory.
 #
-# Fix: for each old-named project folder, link the new name to it (a relative
-# symlink, so both Macs keep writing to one synced folder during coexistence).
-# A new-named folder that already holds real files is merged into the old one
-# first. Idempotent; run on the NEW Mac after scripts/sync-status.sh settles.
+# Fix: the NEW-named folder is the real directory and the OLD name is a symlink
+# to it, so both Macs keep writing into one synced folder during coexistence.
+#
+# DIRECTION MATTERS, and an earlier version of this script had it backwards.
+# Claude Code refuses to write tool-results into a symlinked project folder
+# ("tool-results path refused: … is a link or not a directory"), so large hook
+# output was silently truncated and compaction-restore lost state. The real
+# directory must be the one the LIVE machine uses. This script also converts an
+# existing backwards layout, so running it again repairs machines that got the
+# old behaviour.
+#
+# Quit agents first. A folder with a transcript written in the last 10 minutes
+# is left alone rather than pulled out from under its writer.
 #
 # Usage: scripts/adopt-agent-state.sh [old-username]   (default: christopherstory)
 #
@@ -24,47 +33,63 @@ OLD="${1:-christopherstory}"
 NEW="$(id -un)"
 [ "$OLD" != "$NEW" ] || { echo "Old and new usernames are both '$NEW' — nothing to do."; exit 0; }
 
-linked=0 merged=0 skipped=0 live=0
+is_live() { [ -n "$(find "$1" -name '*.jsonl' -mmin -10 -print -quit 2>/dev/null)" ]; }
+
+inverted=0 moved=0 merged=0 skipped=0 live=0
 for cfg in "$HOME"/.claude "$HOME"/.claude-personal "$HOME"/.claude-work "$HOME"/.claude-work-sub; do
   P="$cfg/projects"
   [ -d "$P" ] || continue
   # names start with '-', so paths stay absolute and ln gets '--'
   for o in "$P/-Users-$OLD" "$P/-Users-$OLD-"*; do
-    [ -d "$o" ] && [ ! -L "$o" ] || continue
+    [ -e "$o" ] || continue
     old="${o##*/}"
     new="-Users-$NEW${old#-Users-$OLD}"
     n="$P/$new"
 
-    if [ -L "$n" ]; then
+    # already correct: old name is a symlink, new name is the real directory
+    if [ -L "$o" ] && [ -d "$n" ] && [ ! -L "$n" ]; then
       skipped=$((skipped + 1)); continue
-    elif [ -d "$n" ]; then
-      # a transcript written in the last 10 minutes belongs to a live session —
-      # quite possibly the one running this script. Moving it would pull the
-      # file out from under its writer; leave the folder for a later run.
-      if [ -n "$(find "$n" -name '*.jsonl' -mmin -10 -print -quit)" ]; then
-        echo "  skipped (live session): ${cfg##*/}/projects/$new — re-run with that agent quit" >&2
-        live=$((live + 1)); continue
-      fi
-      # this Mac already started a history here; fold it in without clobbering
-      (cd "$n" && find . -mindepth 1 -type f -print0) | while IFS= read -r -d '' f; do
-        f="${f#./}"
-        mkdir -p "$(dirname "$o/$f")"
-        if [ -e "$o/$f" ]; then
-          echo "  kept both: ${cfg##*/}/projects/$old/$f (renamed .from-$NEW)" >&2
-          mv "$n/$f" "$o/$f.from-$NEW"
-        else
-          mv "$n/$f" "$o/$f"
-        fi
-      done
-      find "$n" -depth -type d -empty -delete
-      [ ! -e "$n" ] || { echo "  could not empty $n — left alone" >&2; continue; }
-      merged=$((merged + 1))
     fi
 
-    ln -s -- "$old" "$n"
-    linked=$((linked + 1))
+    [ -d "$o" ] && [ ! -L "$o" ] || { skipped=$((skipped + 1)); continue; }
+
+    if is_live "$o"; then
+      echo "  skipped (live session): ${cfg##*/}/projects/$old — re-run with that agent quit" >&2
+      live=$((live + 1)); continue
+    fi
+
+    if [ -L "$n" ]; then
+      # BACKWARDS LAYOUT: new name is a symlink to the old real directory.
+      # Drop the link, promote the real directory to the new name, point the
+      # old name at it. The gap between mv and ln is where a live writer would
+      # break, which is why is_live gates this.
+      rm -- "$n"
+      mv -- "$o" "$n"
+      ln -s -- "$new" "$o"
+      inverted=$((inverted + 1))
+    elif [ -d "$n" ]; then
+      # both names hold real files — fold the old into the new without clobbering
+      (cd "$o" && find . -mindepth 1 -type f -print0) | while IFS= read -r -d '' f; do
+        f="${f#./}"
+        mkdir -p "$(dirname "$n/$f")"
+        if [ -e "$n/$f" ]; then
+          echo "  kept both: ${cfg##*/}/projects/$new/$f (renamed .from-$OLD)" >&2
+          mv -- "$o/$f" "$n/$f.from-$OLD"
+        else
+          mv -- "$o/$f" "$n/$f"
+        fi
+      done
+      find "$o" -depth -type d -empty -delete
+      [ ! -e "$o" ] || { echo "  could not empty $o — left alone" >&2; continue; }
+      ln -s -- "$new" "$o"
+      merged=$((merged + 1))
+    else
+      mv -- "$o" "$n"
+      ln -s -- "$new" "$o"
+      moved=$((moved + 1))
+    fi
   done
 done
 
-echo "linked $linked project folders ($merged merged first), $skipped already linked, $live left for a live session."
+echo "inverted $inverted, moved $moved, merged $merged, $skipped already correct, $live left for a live session."
 echo "Resume old sessions from the matching directory under /Users/$NEW with --resume <id>."
