@@ -17,7 +17,16 @@ let
 in
 {
   launchd.agents.open-design-daemon = {
-    enable = true;
+    # OFF. The agent and its script were found on the old Mac — the script
+    # untracked in a repo that is not his, the LaunchAgent hand-written and
+    # unversioned — and Christopher does not recognise either; most likely an
+    # earlier agent set it up. Starting daemon, web and desktop processes on
+    # :7456 at every login is not something to restore on a guess.
+    #
+    # The script now works if wanted: run it by hand, or flip this to true.
+    # open-design pins node ~24 and pnpm 10.33.2 in its own mise.toml, both now
+    # installed, and the script resolves them with `mise exec`.
+    enable = false;
     config = {
       ProgramArguments = [ script ];
       RunAtLoad = true;
