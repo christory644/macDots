@@ -135,9 +135,11 @@
       #     pin the 1M-tagged model to keep the full window (forces opus as the personal default;
       #     switching models mid-session via /model loses the [1m] tag).
       claude-personal = "CLAUDE_CONFIG_DIR=~/.claude-personal command claude --enable-auto-mode --allow-dangerously-skip-permissions";
-      claude-work = "CLAUDE_CONFIG_DIR=~/.claude-work command claude --enable-auto-mode --allow-dangerously-skip-permissions";
-      # claude-work is the platform (API) account; claude-work-sub is the work
-      # subscription account. The bare `claude` defaults to the subscription.
+      # claude-work — the platform (API) account — was retired 2026-10-19 when
+      # work moved to a subscription. Its 13 skills and 2,312 transcripts were
+      # folded into claude-work-sub; its memories were NOT, because every one
+      # of them was an older copy of a file sub already had (69 byte-identical,
+      # 12 differing and newer in sub without exception).
       claude-work-sub = "CLAUDE_CONFIG_DIR=~/.claude-work-sub command claude --enable-auto-mode --allow-dangerously-skip-permissions";
       claude = "claude-work-sub";
 
@@ -321,9 +323,9 @@
           fi
         }
 
-        function gt-work()     { _ensure_tmux gt-work GT_TOWN_ROOT=~/.gt-work CLAUDE_CONFIG_DIR=~/.claude-work CODEX_HOME=~/.codex-work command gt "$@"; }
+        function gt-work()     { _ensure_tmux gt-work GT_TOWN_ROOT=~/.gt-work CLAUDE_CONFIG_DIR=~/.claude-work-sub CODEX_HOME=~/.codex-work command gt "$@"; }
         function gt-personal() { _ensure_tmux gt-personal GT_TOWN_ROOT=~/.gt-personal CLAUDE_CONFIG_DIR=~/.claude-personal CODEX_HOME=~/.codex-personal command gt "$@"; }
-        function gc-work()     { _ensure_tmux gc-work CLAUDE_CONFIG_DIR=~/.claude-work CODEX_HOME=~/.codex-work command gc --city ~/.gc-work "$@"; }
+        function gc-work()     { _ensure_tmux gc-work CLAUDE_CONFIG_DIR=~/.claude-work-sub CODEX_HOME=~/.codex-work command gc --city ~/.gc-work "$@"; }
         function gc-personal() { _ensure_tmux gc-personal CLAUDE_CONFIG_DIR=~/.claude-personal CODEX_HOME=~/.codex-personal command gc --city ~/.gc-personal "$@"; }
 
         # Ensure Nix paths take priority over Homebrew (brew shellenv runs in /etc/zshrc)
