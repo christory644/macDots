@@ -25,29 +25,37 @@ let
     # Never commit into a repo Syncthing is still delivering. Every rebuild
     # reloads this agent (RunAtLoad), so it has to refuse on its own rather
     # than rely on a manual bootout mid-seed (new Mac, 2026-10-18).
+    # Every skip says why in the log, so a long gap between commits is a
+    # one-line diagnosis rather than a mystery.
+    skip() { echo "$(date '+%F %T') skipped: $*"; exit 0; }
     # 1. HEAD must resolve: its objects may not have arrived yet.
-    git rev-parse -q --verify 'HEAD^{commit}' >/dev/null || exit 0
+    git rev-parse -q --verify 'HEAD^{commit}' >/dev/null || skip "HEAD does not resolve"
     # 2. The Syncthing folder holding ~/repos (`repos` in syncthing.nix) must
     #    owe this machine nothing. .git routinely finishes before the working
     #    tree, and `git add -A` would then commit every file still in flight as
     #    a deletion; no on-disk artefact reliably shows that, the folder status
-    #    does. Unreachable API: can't tell, so skip this run. Folder not
-    #    configured (404, e.g. after the migration seed is torn down): proceed.
+    #    does. Its need counts only mean something once a peer is connected,
+    #    and RunAtLoad fires at login, when Syncthing may not have reconnected
+    #    yet, so a connected peer is required too. Fails closed: no config or
+    #    no API answer means no commit. Folder not configured (404, e.g. after
+    #    the migration seed is torn down): proceed with no peer needed.
     st="$HOME/Library/Application Support/Syncthing/config.xml"
-    if [ -f "$st" ]; then
-      key=$(grep -oE '<apikey>[^<]+' "$st" | cut -d'>' -f2)
-      api="http://127.0.0.1:8384/rest"
-      code=$(curl -s -m 10 -o /dev/null -w '%{http_code}' -H "X-API-Key: $key" "$api/config/folders/repos")
-      case "$code" in
-        200)
-          curl -s -m 30 -H "X-API-Key: $key" "$api/db/status?folder=repos" | jq -e '
-            (.needBytes + .needFiles + .needDeletes) == 0
-            and (.state | IN("syncing", "sync-preparing", "sync-waiting", "error") | not)
-          ' >/dev/null || exit 0 ;;
-        404) ;;
-        *) exit 0 ;;
-      esac
-    fi
+    [ -f "$st" ] || skip "no Syncthing config at $st"
+    key=$(grep -oE '<apikey>[^<]+' "$st" | cut -d'>' -f2)
+    api="http://127.0.0.1:8384/rest"
+    code=$(curl -s -m 10 -o /dev/null -w '%{http_code}' -H "X-API-Key: $key" "$api/config/folders/repos")
+    case "$code" in
+      200)
+        curl -s -m 10 -H "X-API-Key: $key" "$api/system/connections" \
+          | jq -e '[.connections[] | select(.connected)] | length > 0' >/dev/null \
+          || skip "no Syncthing peer connected, so the repos folder's state is unknown"
+        curl -s -m 30 -H "X-API-Key: $key" "$api/db/status?folder=repos" | jq -e '
+          (.needBytes + .needFiles + .needDeletes) == 0
+          and (.state | IN("syncing", "sync-preparing", "sync-waiting", "error") | not)
+        ' >/dev/null || skip "Syncthing is still delivering the repos folder" ;;
+      404) ;;
+      *) skip "Syncthing API not answering (HTTP $code)" ;;
+    esac
     # nothing changed -> nothing to do
     [ -n "$(git status --porcelain)" ] || exit 0
     git add -A
