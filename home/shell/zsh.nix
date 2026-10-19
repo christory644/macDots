@@ -135,11 +135,17 @@
       #     pin the 1M-tagged model to keep the full window (forces opus as the personal default;
       #     switching models mid-session via /model loses the [1m] tag).
       claude-personal = "CLAUDE_CONFIG_DIR=~/.claude-personal command claude --enable-auto-mode --allow-dangerously-skip-permissions";
-      # claude-work — the platform (API) account — was retired 2026-10-19 when
-      # work moved to a subscription. Its 13 skills and 2,312 transcripts were
-      # folded into claude-work-sub; its memories were NOT, because every one
-      # of them was an older copy of a file sub already had (69 byte-identical,
-      # 12 differing and newer in sub without exception).
+      # claude-work — the platform (API) account — is being retired now that
+      # work is on a subscription, but the alias STAYS until its merge into
+      # claude-work-sub actually completes. The first attempt did not: copying
+      # 2,312 files into a bidirectionally-synced folder while the old Mac was
+      # a live peer produced ~1,100 Syncthing conflicts, leaving those
+      # transcripts present in claude-work-sub only under
+      # `.sync-conflict-…` names, which Claude does not read as sessions.
+      # Nothing was lost — .claude-work still holds every one — but removing
+      # this alias would hide history that has not landed yet.
+      # Finish the merge with the peer paused, then retire this.
+      claude-work = "CLAUDE_CONFIG_DIR=~/.claude-work command claude --enable-auto-mode --allow-dangerously-skip-permissions";
       claude-work-sub = "CLAUDE_CONFIG_DIR=~/.claude-work-sub command claude --enable-auto-mode --allow-dangerously-skip-permissions";
       claude = "claude-work-sub";
 

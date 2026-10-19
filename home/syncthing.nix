@@ -98,6 +98,7 @@ in
         # ── Permanent: coding-agent continuity (memories + conversations) ──
         "claude" = folder ".claude";
         "claude-personal" = folder ".claude-personal";
+        "claude-work" = folder ".claude-work";   # retire once its merge completes
         "claude-work-sub" = folder ".claude-work-sub";
         "codex" = folder ".codex";
         "codex-personal" = folder ".codex-personal";
@@ -122,6 +123,7 @@ in
   home.file = {
     ".claude/.stignore".text = claudeIgnore;
     ".claude-personal/.stignore".text = claudeIgnore;
+    ".claude-work/.stignore".text = claudeIgnore;
     ".claude-work-sub/.stignore".text = claudeIgnore;
     ".codex/.stignore".text = codexIgnore;
     ".codex-personal/.stignore".text = codexIgnore;
