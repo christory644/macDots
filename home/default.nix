@@ -19,6 +19,8 @@
     ./headroom.nix
     ./supacode.nix
     ./second-brain-autocommit.nix
+    ./open-design.nix
+    ./login-items.nix
     ./mise.nix
     ./syncthing.nix
     ./universal-control.nix

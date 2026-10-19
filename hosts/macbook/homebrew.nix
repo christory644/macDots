@@ -84,6 +84,19 @@
       #   brew install --cask aerospace
       # "aerospace"
 
+      # Java runtimes. NOT from nixpkgs on purpose: a nixpkgs JDK is just a
+      # binary on PATH, and `/usr/libexec/java_home` never sees it, so anything
+      # that resolves a JDK through java_home (DBeaver, DbVisualizer, Gradle
+      # and Maven wrappers, jenv) fails while `java --version` works — the
+      # exact silent failure found on this machine. Casks install into
+      # /Library/Java/JavaVirtualMachines, where java_home does look.
+      "temurin@17"
+      "temurin@21"
+
+      # Databases
+      "dbeaver-community"
+      "dbvisualizer"
+
       # Productivity
       "obsidian"
       "raycast"
@@ -91,6 +104,14 @@
       "whimsical"
       "google-drive"
       "zoom"
+      "airtable"
+      "drawio"
+      "grammarly-desktop"
+
+      # Browsers / AI desktop apps carried over from the old Mac
+      "brave-browser"
+      "chatgpt-atlas"
+      "antigravity"
 
       # Communication
       "discord"
@@ -104,5 +125,18 @@
       #   brew install --cask insta360-link-controller
     ];
 
+    # ── Not declarable here; each needs a decision or a manual step ──────
+    # Verified against `brew info --cask` on 2026-10-18:
+    #   AdaptiveDesktop   — no cask by any obvious name. Source unknown; he
+    #                       needs to say where it came from.
+    #   "ChatGPT Classic" — no cask. Likely the older ChatGPT app kept
+    #                       alongside Atlas; may just be a renamed copy.
+    #   firefoo           — not in Homebrew, https://firefoo.app
+    #   insta360-link-controller — above, needs a sudo TTY
+    #   Keynote / Numbers / Pages — App Store only. `homebrew.masApps` needs
+    #                       the `mas` CLI, which is not installed here; adding
+    #                       it is a decision, not an omission.
+    #   Google Docs/Sheets/Slides .app — Chrome-generated shims, not installable
+    #                       packages. They appear when Chrome creates them.
   };
 }

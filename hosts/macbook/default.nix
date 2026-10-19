@@ -152,11 +152,10 @@
     # NOT packaged: swag (swaggo/swag). go-swagger in nixpkgs is a different
     # project. Still needs `go install github.com/swaggo/swag/cmd/swag@latest`.
 
-    # JDK. `java` resolved via mise, but /usr/libexec/java_home found no
-    # runtime at all, so anything shelling out to java_home (DBeaver,
-    # DbVisualizer, Gradle/Maven wrappers, jenv) failed despite java being
-    # on PATH — a silent failure rather than a missing binary.
-    jdk21
+    # JDKs are NOT here — see hosts/macbook/homebrew.nix. A nixpkgs JDK puts
+    # java on PATH but stays invisible to /usr/libexec/java_home, which was
+    # the actual failure, and it would also shadow mise's java. The temurin
+    # casks install where java_home looks.
 
     # Other CLI tools that were on the old Mac via Homebrew
     google-cloud-sql-proxy
@@ -188,6 +187,9 @@
         wvous-tr-corner = 1;
         wvous-bl-corner = 1;
         wvous-br-corner = 1;
+
+        largesize = 60;                # magnified icon size
+        expose-group-apps = true;      # Mission Control groups windows by app
       };
 
       # ── Trackpad ───────────────────────────────────────────────────
@@ -210,6 +212,13 @@
         ShowStatusBar = true;
         ShowExternalHardDrivesOnDesktop = false;
         ShowRemovableMediaOnDesktop = false;
+        FXEnableExtensionChangeWarning = false;  # no nag when renaming extensions
+        FXDefaultSearchScope = "SCev";           # search the current folder, not the Mac
+      };
+
+      # ── Stage Manager / desktop ────────────────────────────────────
+      WindowManager = {
+        AutoHide = true;               # hide desktop items until the wallpaper is clicked
       };
 
       # ── Menu bar clock ─────────────────────────────────────────────
@@ -257,6 +266,9 @@
 
         # Save to disk (not iCloud) by default
         NSDocumentSaveNewDocumentsToCloud = false;
+
+        # Drag any window from anywhere with ctrl+cmd held
+        NSWindowShouldDragOnGesture = true;
       };
 
       # ── Custom preferences ─────────────────────────────────────────
@@ -276,6 +288,35 @@
         # block above only covers the built-in one.
         "com.apple.driver.AppleBluetoothMultitouch.trackpad" = {
           Clicking = true;
+        };
+        # Mouse tracking speed. Not a typed system.defaults option in this
+        # nix-darwin, so it goes through CustomUserPreferences.
+        NSGlobalDomain = {
+          "com.apple.mouse.scaling" = 3.0;
+        };
+        # Horizontal swipes off, as on the old Mac — AeroSpace owns space
+        # switching, and the system gesture fights it.
+        "com.apple.AppleMultitouchTrackpad" = {
+          TrackpadThreeFingerHorizSwipeGesture = 0;
+          TrackpadFourFingerHorizSwipeGesture = 0;
+        };
+        # Input sources: the old Mac also had PressAndHold enabled.
+        "com.apple.HIToolbox" = {
+          AppleEnabledInputSources = [
+            {
+              InputSourceKind = "Keyboard Layout";
+              "KeyboardLayout ID" = 0;
+              "KeyboardLayout Name" = "U.S.";
+            }
+            {
+              InputSourceKind = "Non Keyboard Input Method";
+              "Bundle ID" = "com.apple.CharacterPaletteIM";
+            }
+            {
+              InputSourceKind = "Non Keyboard Input Method";
+              "Bundle ID" = "com.apple.PressAndHold";
+            }
+          ];
         };
       };
     };
@@ -303,11 +344,42 @@
   # calls go through `sudo -u`; writing them as root would land in root's
   # preferences and silently do nothing for him.
   system.activationScripts.postActivation.text = ''
-    for id in 64 65; do
+    hk() {
       sudo -u ${username} /usr/bin/defaults write com.apple.symbolichotkeys \
-        AppleSymbolicHotKeys -dict-add "$id" '{ enabled = 0; }' || true
-    done
+        AppleSymbolicHotKeys -dict-add "$1" "$2" || true
+    }
+
+    # Mission Control / Spaces — off, AeroSpace owns these
+    hk 32  '{enabled = 0; value = {parameters = (65535, 126, 8650752); type = standard;};}'
+    hk 33  '{enabled = 0; value = {parameters = (65535, 125, 8650752); type = standard;};}'
+    hk 34  '{enabled = 0;}'
+    hk 35  '{enabled = 1; value = {parameters = (65535, 125, 8781824); type = standard;};}'
+    hk 36  '{enabled = 0; value = {parameters = (65535, 103, 8388608); type = standard;};}'
+    hk 37  '{enabled = 1; value = {parameters = (65535, 103, 8519680); type = standard;};}'
+    hk 44  '{enabled = 0;}'
+    hk 45  '{enabled = 0;}'
+    hk 46  '{enabled = 0;}'
+    hk 48  '{enabled = 0;}'
+    hk 49  '{enabled = 0;}'
+    hk 52  '{enabled = 0; value = {parameters = (100, 2, 1572864); type = standard;};}'
+
+    # 64/65 — Spotlight and Finder search. OFF so Raycast owns cmd+space.
+    hk 64  '{enabled = 0; value = {parameters = (32, 49, 1048576); type = standard;};}'
+    hk 65  '{enabled = 0; value = {parameters = (32, 49, 1572864); type = standard;};}'
+
+    # 79/81 — Move left/right a space. OFF; AeroSpace binds these itself.
+    hk 79  '{enabled = 0; value = {parameters = (65535, 123, 8650752); type = standard;};}'
+    hk 81  '{enabled = 0; value = {parameters = (65535, 124, 8650752); type = standard;};}'
+    hk 82  '{enabled = 1; value = {parameters = (65535, 124, 8781824); type = standard;};}'
+
+    hk 118 '{enabled = 0; value = {parameters = (65535, 18, 262144); type = standard;};}'
+    hk 190 '{enabled = 0; value = {parameters = (113, 12, 8388608); type = standard;};}'
+
     sudo -u ${username} /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u || true
+
+    # Dock and Finder re-read their preferences only on restart.
+    sudo -u ${username} /usr/bin/killall Dock 2>/dev/null || true
+    sudo -u ${username} /usr/bin/killall Finder 2>/dev/null || true
   '';
 
   networking.hostName = hostname;
