@@ -182,8 +182,8 @@
       # nix-darwin rebuild (nh gives colorized diffs + better progress)
       rebuild = "nh darwin switch ~/repos/macDots -H ${hostname}";
 
-      # update all flake inputs (nixpkgs, home-manager, nixvim, etc.) then rebuild
-      update = "nix flake update --flake ~/repos/macDots && nh darwin switch ~/repos/macDots -H ${hostname}";
+      # `update` is a FUNCTION in initContent, not an alias: it has to restore
+      # flake.lock when the build fails, which an alias cannot express.
 
       # system info (run manually, not on startup)
       neofetch = "fastfetch";
@@ -347,6 +347,41 @@
         function gt-personal() { _ensure_tmux gt-personal GT_TOWN_ROOT=~/.gt-personal CLAUDE_CONFIG_DIR=~/.claude-personal CODEX_HOME=~/.codex-personal command gt "$@"; }
         function gc-work()     { _ensure_tmux gc-work CLAUDE_CONFIG_DIR=~/.claude-work-sub CODEX_HOME=~/.codex-work command gc --city ~/.gc-work "$@"; }
         function gc-personal() { _ensure_tmux gc-personal CLAUDE_CONFIG_DIR=~/.claude-personal CODEX_HOME=~/.codex-personal command gc --city ~/.gc-personal "$@"; }
+
+        # Bump every flake input and rebuild, keeping the new lock ONLY if the
+        # build succeeds.
+        #
+        # The old one-liner was `nix flake update && nh darwin switch`. On
+        # 2026-10-19 the update half succeeded, the build half failed on a flaky
+        # atuin test, and flake.lock was left rewritten with no system matching
+        # it. The next rebuild then failed too — not a second problem, just the
+        # same one read back off disk — which reads like the update broke
+        # something. It did not; nix never half-applies. But a lock no built
+        # system corresponds to is a trap, so put it back.
+        #
+        # Build before switching so a doomed update never reaches a sudo prompt:
+        # `switch` asks for the password first and only then discovers the build
+        # is broken. The second build is a cache hit.
+        function update() {
+          local repo=~/repos/macDots
+          local backup
+          backup=$(mktemp) || return 1
+          cp "$repo/flake.lock" "$backup" || { rm -f "$backup"; return 1; }
+
+          if ! nix flake update --flake "$repo"; then
+            rm -f "$backup"
+            return 1
+          fi
+
+          if nh darwin build "$repo" -H ${hostname} && nh darwin switch "$repo" -H ${hostname}; then
+            rm -f "$backup"
+          else
+            print -u2 "update: build failed — restoring the previous flake.lock"
+            cp "$backup" "$repo/flake.lock"
+            rm -f "$backup"
+            return 1
+          fi
+        }
 
         # Ensure Nix paths take priority over Homebrew (brew shellenv runs in /etc/zshrc)
         export PATH="$HOME/.nix-profile/bin:/etc/profiles/per-user/$USER/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:$PATH"
