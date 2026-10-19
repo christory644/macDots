@@ -82,6 +82,7 @@
           }
 
           ./hosts/macbook/default.nix
+          ./hosts/macbook/power.nix
           ./hosts/macbook/homebrew.nix
 
           nix-homebrew.darwinModules.nix-homebrew

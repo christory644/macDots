@@ -21,6 +21,7 @@
     ./second-brain-autocommit.nix
     ./open-design.nix
     ./login-items.nix
+    ./lock-policy.nix
     ./mise.nix
     ./syncthing.nix
     ./universal-control.nix
