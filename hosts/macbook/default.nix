@@ -283,6 +283,16 @@
       echo "setting ${username} login shell: $current -> $loginShell" >&2
       dscl . -create /Users/${username} UserShell "$loginShell"
     fi
+
+    # Agent state synced from the old Mac (Claude settings hooks, plugin
+    # marketplaces, orchestrator prompts, scheduled tasks) hardcodes that
+    # machine's home. Alias it here rather than rewriting files that still
+    # sync back to it. No-op on the old Mac, where it is a real directory.
+    oldHome=/Users/christopherstory
+    if [ ! -e "$oldHome" ] && [ ! -L "$oldHome" ]; then
+      echo "aliasing $oldHome -> /Users/${username}" >&2
+      ln -s /Users/${username} "$oldHome"
+    fi
   '';
 
   # Fonts — we reference ~/repos/fonts/ in terminal configs
