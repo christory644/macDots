@@ -28,8 +28,14 @@ crashing while `repos` scans; the three non-git writing projects
 under christory644. Still synced-only, not pushed: unpushed branches in 13
 repos and no-remote `agent-workspace`, `certiflag`, `tonttu`, `second_brain`.
 
-Not yet done on the old Mac: Raycast export (no `.rayconfig` anywhere), and
-the `second_brain` bundle is from 2026-08-30.
+Later that night: Raycast exported to `~/Documents`; a verified
+`second_brain` bundle made at `~/second_brain-bundles/` — **outside** the
+synced folders on purpose, so it doesn't lengthen the seed. Once the seed
+settles, move it into `~/Documents/backups/`; teardown's `rm` list does not
+cover `~/second_brain-bundles`. `second_brain` has `gc.auto 0` set (its
+`.git/config` syncs, so both sides) because an auto-gc repack here forced a
+3.9 GB re-fetch and left the new Mac at `bad object HEAD` mid-sync; unset it
+after the seed settles.
 
 **Username gap, found the same day.** The new Mac's user is `christory`, the
 old one's `christopherstory`. Claude keys transcripts and memory by absolute
