@@ -31,6 +31,15 @@ repos and no-remote `agent-workspace`, `certiflag`, `tonttu`, `second_brain`.
 Not yet done on the old Mac: Raycast export (no `.rayconfig` anywhere), and
 the `second_brain` bundle is from 2026-08-30.
 
+**Username gap, found the same day.** The new Mac's user is `christory`, the
+old one's `christopherstory`. Claude keys transcripts and memory by absolute
+path, and synced settings, hooks and orchestrator prompts hardcode the old
+home, so agent state arrived intact but unusable. Fixed by
+`scripts/adopt-agent-state.sh` (run once after the sync settles) and a
+`/Users/christopherstory` alias created at activation. Twelve live sessions,
+how to end them here and the exact resume commands for the new Mac are in
+`~/Documents/migration-sessions.md` (kept out of this public repo).
+
 **Why it felt half-baked:** the original bootstrap died silently. On a fresh Mac
 `rustc` isn't on PATH, so `bootstrap.sh` took its rust branch and called
 `rustup-init`, which nothing in the flake provides. Under `set -euo pipefail`
