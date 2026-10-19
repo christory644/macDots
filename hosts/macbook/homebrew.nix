@@ -68,6 +68,14 @@
       "supacode"        # Native terminal coding agents command center (.app, requires macOS >= 26)
       "t3-code"         # T3 Code — minimal GUI for AI code agents
 
+      # Game dev (The Bright Wake): Blender as the asset factory, Unreal via the
+      # Epic launcher, Godot as the fallback engine. Unreal wants lots of disk and
+      # RAM; install the engine itself through the launcher on the build machine.
+      # Unreal on macOS needs a supported Xcode (Epic's 5.8 docs: 26.1.x, not 26.4).
+      "blender"
+      "epic-games"
+      "godot"
+
       # Window management
       # aerospace — cask fails to install on newer macOS (aborts `brew bundle`,
       # which in turn aborts the whole darwin-rebuild BEFORE home-manager user
