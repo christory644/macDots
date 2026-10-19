@@ -69,6 +69,42 @@ let
     /ai-coach/coverage
   '';
 
+  # Gas Town HQ (gt-personal/gt-work) and two scratch projects live in the HOME
+  # ROOT, not ~/repos — the original layout on both machines. Nothing replicated
+  # them: they sat outside every synced folder, and gt-personal/gt-work have no
+  # git remotes and no commits, so git can restore nothing from them. The old
+  # Mac was their only second copy, and it is being wiped.
+  #
+  # .dolt-data IS synced: it is content-addressed like git (not a mutable page
+  # file), only ~300 KB, and it holds the actual beads issue data — excluding it
+  # would back up the shell and drop the contents. The sqlite privileges DB next
+  # to it is excluded, per the rule above about open databases. If a gt daemon
+  # ever runs on two machines at once, revisit this.
+  gtIgnore = ''
+    // transient runtime state
+    daemon
+    logs
+    events
+    **/state.json
+    **/*.lock
+    **/*.flock
+    **/locks
+    **/*.pid
+    **/heartbeat.json
+    **/activity.json
+    **/.runtime
+    // worktrees and clones — recreate with `gt sling` / `gt rig add`
+    **/polecats
+    **/deacon/dogs
+    **/mayor/rig
+    **/refinery/rig
+    **/crew
+    // never sync an open sqlite DB
+    **/.doltcfg/privileges.db
+    node_modules
+    .DS_Store
+  '';
+
   # Device IDs for both machines (Actions → Show ID in each Syncthing UI).
   # TEARDOWN: drop the `macbook` entry once that Mac is wiped.
   deviceIds = {
@@ -116,6 +152,15 @@ in
         "music" = folder "Music";
         "screenshots" = folder "Screenshots"; # macOS screencapture location
         "repos" = folder "repos";
+
+        # ── Permanent: home-root working dirs ─────────────────────────────
+        # Unlike the migration seed above, these stay: they are where the Gas
+        # Town HQs and these two scratch projects actually live.
+        "gt-personal" = folder "gt-personal";
+        "gt-work" = folder "gt-work";
+        "mindTheGap" = folder "mindTheGap";
+        "claude-prompts" = folder "claude-prompts";
+        "backfill-audit-logs" = folder "backfill-audit-logs";
       };
     };
   };
@@ -129,6 +174,8 @@ in
     ".codex-personal/.stignore".text = codexIgnore;
     ".codex-work/.stignore".text = codexIgnore;
     "repos/.stignore".text = reposIgnore;
+    "gt-personal/.stignore".text = gtIgnore;
+    "gt-work/.stignore".text = gtIgnore;
     # iCloud Photos carries the library; syncing a live .photoslibrary bundle
     # corrupts its internal DB. Loose images in ~/Pictures still sync.
     "Pictures/.stignore".text = ''
