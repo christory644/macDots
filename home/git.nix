@@ -1,5 +1,49 @@
 { pkgs, ... }:
 
+# Git always talks SSH, always with one of these two keys, and the OWNER in the
+# URL decides which: anything under CertifyOS is work, everything else personal.
+#
+# This is what the github.com-<account> ssh aliases were always for. They work
+# fine when a remote actually uses one. The gap is that `gh repo clone
+# CertifyOS/<repo>` hands git a PLAIN git@github.com:OWNER/REPO address — gh's
+# per-host git_protocol is ssh, and gh's own tokens play no part in the clone.
+# Plain github.com offers whichever key ssh-agent lists first, the personal one,
+# so every work clone failed with "Please make sure you have the correct access
+# rights" while `gh` itself looked perfectly healthy.
+#
+# It cannot be fixed in ssh_config: SSH sees only the host, never the repo path,
+# so it cannot tell a CertifyOS URL from a personal one on plain github.com.
+# The owner distinction only exists at the git layer. The rules below map every
+# plain form onto the existing aliases, so the aliases stay the single place
+# that binds a key — they just stop being something you have to remember to
+# type.
+#
+# insteadOf picks the LONGEST matching prefix, which is what lets one mechanism
+# say "work for this org, personal for everything else". Existing
+# `github.com-<account>:` remotes are untouched: after "github.com" they have
+# "-", not ":", so they match neither prefix and are never double-rewritten.
+#
+# THE TRAP, verified rather than assumed: insteadOf rewrites the TRANSPORT only.
+# A clone made through it stores the ORIGINAL url in .git/config — tested
+# offline against a local bare repo, which recorded the pre-rewrite form. So the
+# work-identity include cannot key off the rewritten address; it has to match
+# every spelling that can legitimately land in a remote, or commits silently go
+# out as the personal identity.
+
+let
+  workIdentity = {
+    user = {
+      name = "chris-certifyos";
+      email = "christopher.story@certifyos.com";
+    };
+  };
+
+  workRemotes = [
+    "git@github.com-chris-certifyos:CertifyOS/**"
+    "git@github.com:CertifyOS/**"
+    "https://github.com/CertifyOS/**"
+  ];
+in
 {
   programs.git = {
     enable = true;
@@ -7,17 +51,10 @@
 
     signing.format = null;
 
-    includes = [
-      {
-        condition = "hasconfig:remote.*.url:git@github.com-chris-certifyos:CertifyOS/**";
-        contents = {
-          user = {
-            name = "chris-certifyos";
-            email = "christopher.story@certifyos.com";
-          };
-        };
-      }
-    ];
+    includes = map (url: {
+      condition = "hasconfig:remote.*.url:${url}";
+      contents = workIdentity;
+    }) workRemotes;
 
     ignores = [
       ".DS_Store"
@@ -39,6 +76,20 @@
     ];
 
     settings = {
+      # Owner decides the key. https is folded into ssh too, so git never falls
+      # back to a token-based transport.
+      url = {
+        "git@github.com-chris-certifyos:CertifyOS/".insteadOf = [
+          "git@github.com:CertifyOS/"
+          "https://github.com/CertifyOS/"
+        ];
+        "git@github.com-christory644:".insteadOf = [
+          "git@github.com:"
+          "https://github.com/"
+        ];
+      };
+
+      # Default identity; the includes above override it for CertifyOS remotes.
       user = {
         name = "Christopher Story";
         email = "christory@pm.me";
