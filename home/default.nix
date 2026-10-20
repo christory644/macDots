@@ -19,6 +19,7 @@
     ./headroom.nix
     ./supacode.nix
     ./second-brain-autocommit.nix
+    ./second-brain-bundle.nix
     ./open-design.nix
     ./login-items.nix
     ./lock-policy.nix
