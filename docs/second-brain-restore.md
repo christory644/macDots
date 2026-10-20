@@ -48,10 +48,29 @@ git bundle verify /tmp/sb.bundle
 
 # 4. clone from it
 git clone /tmp/sb.bundle ~/repos/second_brain-restored
+
+# 5. REQUIRED — the clone does NOT bring the stash
+git -C ~/repos/second_brain-restored fetch /tmp/sb.bundle 'refs/stash:refs/stash'
 ```
 
-The clone has every branch the bundle captured (`--all`), full history, and
-`origin` pointing at the bundle file — remove that remote afterwards, since
+**Step 5 is not optional, and it is easy to miss.** `git clone` fetches only
+`refs/heads` and `refs/tags`. `refs/stash` IS in the bundle, but a clone leaves
+it behind — a restore drill on 2026-10-19 came back with 822 commits against
+the live repo's 824, and the two missing ones were the stash. Nothing warns you;
+the clone looks complete.
+
+After step 5 the counts match exactly (verified: 824 = 824, all 11 refs
+present). One nuance: `git stash list` will still show nothing, because
+fetching a ref creates no reflog and that list is read from the reflog. The
+content is there and reachable:
+
+```
+git -C ~/repos/second_brain-restored show refs/stash
+git -C ~/repos/second_brain-restored stash apply refs/stash
+```
+
+The clone has every branch the bundle captured, full history, and `origin`
+pointing at the bundle file — remove that remote afterwards, since
 second_brain is deliberately remote-less.
 
 ## What the bundle does NOT contain
