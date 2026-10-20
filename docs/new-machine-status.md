@@ -26,7 +26,9 @@ gh-stack, game-dev casks, ai-coach ignore); `sync-status.sh` fixed to stop
 crashing while `repos` scans; the three non-git writing projects
 (`a-contract-of-ash-and-ink`, `new-book`, `resume`) given private remotes
 under christory644. Still synced-only, not pushed: unpushed branches in 13
-repos and no-remote `agent-workspace`, `certiflag`, `tonttu`, `second_brain`.
+repos and no-remote `agent-workspace`, `second_brain`. (`certiflag` became
+`lamplighter` and now pushes to CertifyOS; `tonttu` is private under the
+personal account. Both 2026-10-20.)
 
 Later that night: Raycast exported to `~/Documents`; a verified
 `second_brain` bundle made at `~/second_brain-bundles/` — **outside** the
