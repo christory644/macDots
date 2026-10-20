@@ -209,7 +209,6 @@ in
         # mindTheGap and claude-prompts moved into ~/repos on 2026-10-20, so the
         # `repos` folder above already covers them. Syncthing cannot nest one
         # folder inside another, so their own definitions had to go.
-        "backfill-audit-logs" = folder "backfill-audit-logs";
       };
     };
   };
