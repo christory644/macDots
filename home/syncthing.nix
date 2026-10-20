@@ -62,6 +62,24 @@ let
   # repos/ carries ~150 git working trees. Keep .git + source; drop everything
   # rebuildable so Syncthing isn't indexing/transferring hundreds of thousands of
   # node_modules files. (~46G on disk drops to a fraction with these excluded.)
+  # TWO MEASURED FAILURES ARE BAKED INTO THIS LIST. Read before reviving.
+  #
+  # 1. Every pattern here is UNANCHORED, so it matches at any depth — including
+  #    inside dependency trees. `dist` and `build` therefore ate
+  #    deps/phoenix_live_dashboard/dist/, and agentOS's main checkout could not
+  #    compile: `just check` died on a File.Error. 24 other agentOS worktrees
+  #    took the same break. Nothing warns you; the dep looks installed.
+  #    No TRACKED content was lost (verified across all 143 repos via
+  #    `git ls-files --deleted`: one file, in wallpapers, restorable from git).
+  #    The damage is confined to vendored deps that ship build output and must
+  #    be refetched. Anchor these, or negate dependency trees ahead of them.
+  #
+  # 2. `*.log` was equally blunt — see claudeIgnore above, where it silently
+  #    dropped 75 real state files. The same rule is narrowed there and should
+  #    be narrowed here too; it is left spelled out rather than quietly removed
+  #    so the next person sees the shape of the mistake.
+  #
+  # Both are inert while `enable = false`. Neither is hypothetical.
   reposIgnore = ''
     node_modules
     target
@@ -72,7 +90,10 @@ let
     __pycache__
     .pytest_cache
     result
-    *.log
+    // `*.log` used to sit here, unanchored, exactly like claudeIgnore's.
+    // Name the noise instead of the extension.
+    *-debug.log
+    npm-debug.log
     .DS_Store
     # ai-coach churns hard enough here to destabilize fseventsd
     /ai-coach/.claude/worktrees
