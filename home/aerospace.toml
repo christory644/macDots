@@ -25,116 +25,294 @@ outer.bottom =     10
 outer.top =        10
 outer.right =      10
 
+# ── main mode ────────────────────────────────────────────────────────────────
+#
+# Rebound 2026-10-20 for a laptop keyboard. The previous scheme put everything
+# on cmd-alt, and sending a window somewhere on cmd-alt-shift. On a Kinesis
+# Advantage 360 cmd and alt are thumb keys, so that was two thumbs and a finger.
+# On a MacBook all three modifiers are stacked in the bottom-left corner and
+# cmd-alt-shift-7 is a claw.
+#
+# So: alt alone for the things done dozens of times an hour (focus, switch
+# workspace), alt-shift for moving a window within the tree, and a MODE for the
+# things done occasionally (sending a window to a workspace, resizing). Every
+# three-modifier chord is gone and the common case got cheaper, not just
+# more reachable.
+#
+# Send mode is on alt-space, not alt-s: S is now the Slack workspace. Raycast
+# owns cmd-space, so alt-space is free.
+
 [mode.main.binding]
-# Launch cmux terminal
 alt-enter = 'exec-and-forget open -n /Applications/cmux.app'
 
-cmd-h = [] # disable "hide application"
+cmd-h = [] # disable "hide application" — too easy to hit by accident
 
-cmd-alt-slash = 'layout tiles horizontal vertical'
-cmd-alt-comma = 'layout accordion horizontal vertical'
+# layout
+alt-slash = 'layout tiles horizontal vertical'
+alt-comma = 'layout accordion horizontal vertical'
+alt-f     = 'fullscreen'
 
-# Focus (hjkl)
-cmd-alt-h = 'focus left'
-cmd-alt-j = 'focus down'
-cmd-alt-k = 'focus up'
-cmd-alt-l = 'focus right'
+# focus — two keys, both modifiers adjacent
+alt-h = 'focus left'
+alt-j = 'focus down'
+alt-k = 'focus up'
+alt-l = 'focus right'
 
-# Move windows
-cmd-alt-shift-h = 'move left'
-cmd-alt-shift-j = 'move down'
-cmd-alt-shift-k = 'move up'
-cmd-alt-shift-l = 'move right'
+# move the window within the tree — still only two modifiers
+alt-shift-h = 'move left'
+alt-shift-j = 'move down'
+alt-shift-k = 'move up'
+alt-shift-l = 'move right'
 
-# Resize
-cmd-alt-shift-minus = 'resize smart -50'
-cmd-alt-shift-equal = 'resize smart +50'
+# switch workspace — the frequent half, so it stays direct
+alt-1 = 'workspace 1'
+alt-2 = 'workspace 2'
+alt-3 = 'workspace 3'
+alt-4 = 'workspace 4'
+alt-5 = 'workspace 5'
+alt-6 = 'workspace 6'
+alt-7 = 'workspace 7'
+alt-8 = 'workspace 8'
+alt-9 = 'workspace 9'
 
-# Workspaces — main monitor: 1-5, T, C, W | secondary monitor: 6-9, B
-cmd-alt-1 = 'workspace 1'
-cmd-alt-2 = 'workspace 2'
-cmd-alt-3 = 'workspace 3'
-cmd-alt-4 = 'workspace 4'
-cmd-alt-5 = 'workspace 5'
-cmd-alt-6 = 'workspace 6'
-cmd-alt-7 = 'workspace 7'
-cmd-alt-8 = 'workspace 8'
-cmd-alt-9 = 'workspace 9'
-cmd-alt-b = 'workspace B'
-cmd-alt-c = 'workspace C'
-cmd-alt-t = 'workspace T'
-cmd-alt-w = 'workspace W'
+# named workspaces, by what lives there
+alt-a = 'workspace A' # AI apps      — Claude, Codex/ChatGPT
+alt-b = 'workspace B' # Browser      — personal Chrome, and other browsers
+alt-c = 'workspace C' # Code         — Cursor, VS Code, Antigravity, T3, supacode
+alt-d = 'workspace D' # Data         — DBeaver, DbVisualizer, Bruno, Airtable
+alt-m = 'workspace M' # Music        — Spotify
+alt-n = 'workspace N' # Notes        — Obsidian, draw.io, Whimsical
+alt-s = 'workspace S' # Slack        — moved off C, which read as "code"
+alt-t = 'workspace T' # Terminal     — cmux, iTerm, kitty, Alacritty
+alt-v = 'workspace V' # Video        — Zoom
+alt-w = 'workspace W' # Work web     — the certifyos.com Chrome profile
 
-# Move to workspace
-cmd-alt-shift-1 = ['move-node-to-workspace 1', 'workspace 1']
-cmd-alt-shift-2 = ['move-node-to-workspace 2', 'workspace 2']
-cmd-alt-shift-3 = ['move-node-to-workspace 3', 'workspace 3']
-cmd-alt-shift-4 = ['move-node-to-workspace 4', 'workspace 4']
-cmd-alt-shift-5 = ['move-node-to-workspace 5', 'workspace 5']
-cmd-alt-shift-6 = ['move-node-to-workspace 6', 'workspace 6']
-cmd-alt-shift-7 = ['move-node-to-workspace 7', 'workspace 7']
-cmd-alt-shift-8 = ['move-node-to-workspace 8', 'workspace 8']
-cmd-alt-shift-9 = ['move-node-to-workspace 9', 'workspace 9']
-cmd-alt-shift-b = ['move-node-to-workspace B', 'workspace B']
-cmd-alt-shift-c = ['move-node-to-workspace C', 'workspace C']
-cmd-alt-shift-t = ['move-node-to-workspace T', 'workspace T']
-cmd-alt-shift-w = ['move-node-to-workspace W', 'workspace W']
+alt-tab = 'workspace-back-and-forth'
 
-cmd-alt-shift-f = 'fullscreen'
-cmd-alt-tab = 'workspace-back-and-forth'
-cmd-alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
+# modes — these replace every cmd-alt-shift chord
+alt-space     = 'mode send'
+alt-r         = 'mode resize'
+alt-semicolon = 'mode service'
 
-cmd-alt-shift-semicolon = 'mode service'
-cmd-alt-shift-r = 'mode resize'
+# ── send mode ────────────────────────────────────────────────────────────────
+#
+# alt-space then one key. Each binding ends in 'mode main', so it exits itself
+# after a single press — the thing that usually makes modes annoying is having
+# to remember to escape out of them.
+#
+# alt-space then 7 replaces cmd-alt-shift-7.
 
-[mode.resize.binding]
-h = 'resize width -50'
-j = 'resize height +50'
-k = 'resize height -50'
-l = 'resize width +50'
-b = 'balance-sizes'
+[mode.send.binding]
+1 = ['move-node-to-workspace 1', 'workspace 1', 'mode main']
+2 = ['move-node-to-workspace 2', 'workspace 2', 'mode main']
+3 = ['move-node-to-workspace 3', 'workspace 3', 'mode main']
+4 = ['move-node-to-workspace 4', 'workspace 4', 'mode main']
+5 = ['move-node-to-workspace 5', 'workspace 5', 'mode main']
+6 = ['move-node-to-workspace 6', 'workspace 6', 'mode main']
+7 = ['move-node-to-workspace 7', 'workspace 7', 'mode main']
+8 = ['move-node-to-workspace 8', 'workspace 8', 'mode main']
+9 = ['move-node-to-workspace 9', 'workspace 9', 'mode main']
+
+a = ['move-node-to-workspace A', 'workspace A', 'mode main']
+b = ['move-node-to-workspace B', 'workspace B', 'mode main']
+c = ['move-node-to-workspace C', 'workspace C', 'mode main']
+d = ['move-node-to-workspace D', 'workspace D', 'mode main']
+m = ['move-node-to-workspace M', 'workspace M', 'mode main']
+n = ['move-node-to-workspace N', 'workspace N', 'mode main']
+s = ['move-node-to-workspace S', 'workspace S', 'mode main']
+t = ['move-node-to-workspace T', 'workspace T', 'mode main']
+v = ['move-node-to-workspace V', 'workspace V', 'mode main']
+w = ['move-node-to-workspace W', 'workspace W', 'mode main']
+
 esc = 'mode main'
 
+# ── resize mode ──────────────────────────────────────────────────────────────
+
+[mode.resize.binding]
+h   = 'resize width -50'
+j   = 'resize height +50'
+k   = 'resize height -50'
+l   = 'resize width +50'
+b   = 'balance-sizes'
+esc = 'mode main'
+
+# ── service mode ─────────────────────────────────────────────────────────────
+
 [mode.service.binding]
-esc = ['reload-config', 'mode main']
-r = ['flatten-workspace-tree', 'mode main']
-f = ['layout floating tiling', 'mode main']
+esc       = ['reload-config', 'mode main']
+r         = ['flatten-workspace-tree', 'mode main']
+f         = ['layout floating tiling', 'mode main']
 backspace = ['close-all-windows-but-current', 'mode main']
+
 alt-shift-h = ['join-with left', 'mode main']
 alt-shift-j = ['join-with down', 'mode main']
 alt-shift-k = ['join-with up', 'mode main']
 alt-shift-l = ['join-with right', 'mode main']
 
-[workspace-to-monitor-force-assignment]
-# Main monitor
-1 = 'main'
-2 = 'main'
-3 = 'main'
-4 = 'main'
-5 = 'main'
-T = 'main'
-C = 'main'
-W = 'main'
-# Secondary monitor
-6 = 'secondary'
-7 = 'secondary'
-8 = 'secondary'
-9 = 'secondary'
-B = 'secondary'
+# ── window routing ───────────────────────────────────────────────────────────
+#
+# Rules are evaluated in order and the first match wins, so anything specific
+# must come before the general rule it would otherwise fall into.
+#
+# THE CHROME SPLIT. Both profiles are one app (com.google.Chrome), so app-id
+# cannot separate them. Chrome does put the profile name in the window title —
+# "… - Google Chrome - Christopher (certifyos.com)" — so the work profile is
+# matched on that and every other Chrome window falls through to personal.
+#
+# CAVEAT: Chrome only appends the profile name when MORE THAN ONE profile
+# exists. Collapse to a single profile and this rule silently stops matching,
+# and every window lands in B. Nothing will warn you.
 
-# Auto-route apps to workspaces
+# Work Chrome — must precede the catch-all Chrome rule below
 [[on-window-detected]]
-if.app-id = 'company.thebrowser.Browser'
-run = 'move-node-to-workspace B'
-
-[[on-window-detected]]
-if.app-id = 'com.cmuxterm.app'
-run = 'move-node-to-workspace T'
-
-[[on-window-detected]]
-if.app-id = 'com.tinyspeck.slackmacgap'
-run = 'move-node-to-workspace C'
-
-[[on-window-detected]]
-if.app-id = 'com.google.Chrome'
 run = 'move-node-to-workspace W'
+[on-window-detected.if]
+app-id = 'com.google.Chrome'
+window-title-regex-substring = 'certifyos\.com'
+
+# Any other Chrome window → personal
+[[on-window-detected]]
+run = 'move-node-to-workspace B'
+[on-window-detected.if]
+app-id = 'com.google.Chrome'
+
+# Other browsers keep company with personal browsing
+[[on-window-detected]]
+run = 'move-node-to-workspace B'
+[on-window-detected.if]
+app-id = 'org.mozilla.firefox'
+
+[[on-window-detected]]
+run = 'move-node-to-workspace B'
+[on-window-detected.if]
+app-id = 'com.brave.Browser'
+
+[[on-window-detected]]
+run = 'move-node-to-workspace B'
+[on-window-detected.if]
+app-id = 'company.thebrowser.Browser' # Arc — migrated away from, still installed
+
+# Terminal
+[[on-window-detected]]
+run = 'move-node-to-workspace T'
+[on-window-detected.if]
+app-id = 'com.cmuxterm.app'
+
+[[on-window-detected]]
+run = 'move-node-to-workspace T'
+[on-window-detected.if]
+app-id = 'com.googlecode.iterm2'
+
+[[on-window-detected]]
+run = 'move-node-to-workspace T'
+[on-window-detected.if]
+app-id = 'net.kovidgoyal.kitty'
+
+[[on-window-detected]]
+run = 'move-node-to-workspace T'
+[on-window-detected.if]
+app-id = 'org.alacritty'
+
+# Slack — moved from C to S on 2026-10-20; C read as "code" but meant chat
+[[on-window-detected]]
+run = 'move-node-to-workspace S'
+[on-window-detected.if]
+app-id = 'com.tinyspeck.slackmacgap'
+
+# Code editors
+[[on-window-detected]]
+run = 'move-node-to-workspace C'
+[on-window-detected.if]
+app-id = 'com.todesktop.230313mzl4w4u92' # Cursor
+
+[[on-window-detected]]
+run = 'move-node-to-workspace C'
+[on-window-detected.if]
+app-id = 'com.microsoft.VSCode'
+
+[[on-window-detected]]
+run = 'move-node-to-workspace C'
+[on-window-detected.if]
+app-id = 'com.google.antigravity'
+
+[[on-window-detected]]
+run = 'move-node-to-workspace C'
+[on-window-detected.if]
+app-id = 'com.t3tools.t3code'
+
+[[on-window-detected]]
+run = 'move-node-to-workspace C'
+[on-window-detected.if]
+app-id = 'app.supabit.supacode'
+
+# AI apps. ChatGPT.app and Codex.app ship the SAME bundle id, so they cannot be
+# separated even if you wanted them apart.
+[[on-window-detected]]
+run = 'move-node-to-workspace A'
+[on-window-detected.if]
+app-id = 'com.anthropic.claudefordesktop'
+
+[[on-window-detected]]
+run = 'move-node-to-workspace A'
+[on-window-detected.if]
+app-id = 'com.openai.codex'
+
+# Notes and thinking
+[[on-window-detected]]
+run = 'move-node-to-workspace N'
+[on-window-detected.if]
+app-id = 'md.obsidian'
+
+[[on-window-detected]]
+run = 'move-node-to-workspace N'
+[on-window-detected.if]
+app-id = 'com.jgraph.drawio.desktop'
+
+[[on-window-detected]]
+run = 'move-node-to-workspace N'
+[on-window-detected.if]
+app-id = 'com.whimsical.desktop'
+
+# Data tools
+[[on-window-detected]]
+run = 'move-node-to-workspace D'
+[on-window-detected.if]
+app-id = 'org.jkiss.dbeaver.core.product'
+
+[[on-window-detected]]
+run = 'move-node-to-workspace D'
+[on-window-detected.if]
+app-id = 'com.dbvis.DbVisualizer'
+
+[[on-window-detected]]
+run = 'move-node-to-workspace D'
+[on-window-detected.if]
+app-id = 'com.usebruno.app'
+
+[[on-window-detected]]
+run = 'move-node-to-workspace D'
+[on-window-detected.if]
+app-id = 'com.FormaGrid.Airtable'
+
+# Music
+[[on-window-detected]]
+run = 'move-node-to-workspace M'
+[on-window-detected.if]
+app-id = 'com.spotify.client'
+
+# Video calls
+[[on-window-detected]]
+run = 'move-node-to-workspace V'
+[on-window-detected.if]
+app-id = 'us.zoom.xos'
+
+# ── monitors ─────────────────────────────────────────────────────────────────
+#
+# `workspace-to-monitor-force-assignment` was removed on 2026-10-20. It pinned
+# 6-9 and B to "secondary", which no longer exists — `aerospace list-monitors`
+# reports one Built-in Retina Display. The block was inert and misleading: it
+# implied those workspaces behaved differently when they did not.
+#
+# Restore from git history if a desk setup returns. Blender, Godot, Docker,
+# GitHub Desktop and the Epic launcher are deliberately unrouted — a named
+# workspace you visit monthly is a binding you will have forgotten.
