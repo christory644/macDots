@@ -36,13 +36,19 @@ fi
 
 cd "$HOME/repos" || exit 1
 changed=0 repos=0
-for d in */; do
-  d="${d%/}"
+# find, not a `*/` glob: that skips dotted directories, and ~/repos/.github is a
+# real repo (CertifyOS/.github). The first run silently left it behind.
+while IFS= read -r d; do
+  d="${d#./}"
   git -C "$d" rev-parse --git-dir >/dev/null 2>&1 || continue
   touched=0
   while IFS= read -r name; do
     [ -n "$name" ] || continue
-    url=$(git -C "$d" remote get-url "$name" 2>/dev/null) || continue
+    # `git remote get-url` APPLIES url.*.insteadOf, so once the rewrites are
+    # live it hands back the alias form even for an already-canonical stored
+    # URL — the script would then see every repo as still needing work and
+    # "rewrite" 141 no-ops on every run. Read the raw stored value instead.
+    url=$(git -C "$d" config --local --get "remote.$name.url" 2>/dev/null) || continue
     case "$url" in
       git@github.com-chris-certifyos:*) new="git@github.com:${url#git@github.com-chris-certifyos:}" ;;
       git@github.com-christory644:*)    new="git@github.com:${url#git@github.com-christory644:}" ;;
@@ -58,7 +64,7 @@ for d in */; do
     fi
   done < <(git -C "$d" remote 2>/dev/null)
   [ "$touched" -eq 1 ] && repos=$((repos+1))
-done
+done < <(find . -mindepth 1 -maxdepth 1 -type d | sort)
 
 echo
 if [ "$APPLY" -eq 1 ]; then echo "rewrote $changed remotes across $repos repos"
