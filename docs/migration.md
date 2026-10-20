@@ -320,8 +320,17 @@ enrollment and macOS stay; everything personal goes. Do steps in this order.
 **Preconditions:** §6 checklist passed ≥1 week ago; no red Syncthing folders;
 step 3's bundle re-run within the last day.
 
-20. **Cut replication FIRST** (so the deletions below cannot propagate):
-    remove the other device in Syncthing's UI **on both machines**.
+**KEEP `/Users/christopherstory`.** The symlink on the NEW Mac is permanent as
+of 2026-10-20 — not an oversight, a decision. Claude Desktop's session records
+still resolve through it (151 files, 3,124 `cwd` references), and rewriting
+those breaks their pairing with git's worktree registrations. Everything else
+that hardcoded the old home was fixed properly. See the comment in
+`hosts/macbook/default.nix`.
+
+20. ~~**Cut replication FIRST**~~ — **already done 2026-10-19.** Syncthing is
+    stopped and `launchctl disable`d on both machines, and
+    `services.syncthing.enable = false` is committed, so no deletion can
+    propagate. Nothing to do here.
 21. **On the NEW Mac** — teardown commit in macDots: delete the `macbook` host
     entry from `flake.nix` (marked TEARDOWN), delete the migration-seed folder
     block + `peers` entry in `home/syncthing.nix` (keep agent-state folders for

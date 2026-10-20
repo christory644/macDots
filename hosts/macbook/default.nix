@@ -403,10 +403,30 @@
       dscl . -create /Users/${username} UserShell "$loginShell"
     fi
 
-    # Agent state synced from the old Mac (Claude settings hooks, plugin
-    # marketplaces, orchestrator prompts, scheduled tasks) hardcodes that
-    # machine's home. Alias it here rather than rewriting files that still
-    # sync back to it. No-op on the old Mac, where it is a real directory.
+    # PERMANENT, as of 2026-10-20. This started as a migration crutch and is
+    # now a deliberate fixture — do not remove it at teardown.
+    #
+    # Everything else that hardcoded the old home has been fixed properly:
+    # 74 git worktrees repaired, 34 symlinks repointed, hooks and plugin
+    # marketplaces corrected, 60 Claude per-project keys and 13 codex trust
+    # entries re-keyed, 142 git remotes normalised. What remains is Claude
+    # Desktop's own session records — 151 files holding 3,124 `cwd` references
+    # plus 120 `originCwd` and 55 `worktreePath`, which Desktop launches
+    # sessions through.
+    #
+    # Those are the one place the fix is worse than the problem: bulk-rewriting
+    # them on 2026-10-19 produced "this session's branch is checked out in
+    # another folder", because the records have to stay aligned with git's
+    # worktree registrations, and editing one side alone breaks the pairing.
+    # It had to be restored from backup.
+    #
+    # So the choice was: keep a 16-byte symlink forever, or lose the ability to
+    # reopen ~151 historical Desktop sessions. Christopher chose the symlink.
+    # It costs nothing and it no longer hides anything — that was the original
+    # argument for removing it, and it stopped applying once everything else
+    # was genuinely fixed rather than merely resolving through here.
+    #
+    # No-op on the old Mac, where it is a real directory.
     oldHome=/Users/christopherstory
     if [ ! -e "$oldHome" ] && [ ! -L "$oldHome" ]; then
       echo "aliasing $oldHome -> /Users/${username}" >&2
